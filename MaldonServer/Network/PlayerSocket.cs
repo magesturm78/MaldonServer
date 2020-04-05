@@ -59,9 +59,9 @@ namespace MaldonServer.Network
                 Send(new Stage1());
                 //SentFirstPacket = true;
             }
-            catch // ( Exception ex )
+            catch( Exception ex )
             {
-                //Console.WriteLine(ex);
+                Console.WriteLine(ex);
                 Dispose(false);
             }
         }
@@ -73,10 +73,19 @@ namespace MaldonServer.Network
             {
                 while (packets.Count > 0)
                 {
-                    Packet packet = packets.Dequeue();
+                    Packet p = packets.Dequeue();
+                    PacketHandler handler = PacketHandlers.GetHandler(p.PacketID);
+                    if (handler == null)
+                    {
+                        Console.WriteLine("Unhandled Packet 0x{0:X2} {1}", p.PacketID, DateTime.Now.ToString("HH:mm:ss"));
+                    }
+                    else
+                    {
+                        Console.WriteLine("Recieved Packet 0x{0:X2} {1}", p.PacketID, DateTime.Now.ToString("HH:mm:ss"));
+                        handler.OnReceive(this, p);
+                    }
                 }
             }
-            throw new NotImplementedException();
         }
 
         private void OnReceive(IAsyncResult asyncResult)
@@ -102,7 +111,7 @@ namespace MaldonServer.Network
                     }
                     else
                     {
-                        //Console.WriteLine("Client Disconnected from server.");
+                        Console.WriteLine("Client Disconnected from server.");
                         Dispose(false);
                     }
                 }
@@ -113,7 +122,8 @@ namespace MaldonServer.Network
                 }
                 finally
                 {
-                    socket.BeginReceive(recvBuffer, 0, 2048, SocketFlags.None, onReceive, null);
+                    if (socket != null)
+                        socket.BeginReceive(recvBuffer, 0, 2048, SocketFlags.None, onReceive, null);
                 }
             }
         }
@@ -193,18 +203,18 @@ namespace MaldonServer.Network
                 if (size > 1)
                 {
                     length = buffer[position];
-                    id_loc = 1;
+                    id_loc = position + 1;
                     if (length < 128)
                     {
-                        length = (length * 256) + buffer[position + 1];
+                        length = (length * 121) + buffer[position + 1] + 1;
                         id_loc = 2;
                     }
                     else
                     {
-                        length -= 128;
+                        length -= 127;
                     }
 
-                    if (position + length > size)
+                    if (position + id_loc + length > size)
                     {
                         try
                         {
@@ -221,11 +231,11 @@ namespace MaldonServer.Network
                     {
                         byte[] nreBuffer = new byte[length];
                         {
-                            Array.Copy(buffer, position + id_loc, nreBuffer, 0, length);
+                            Array.Copy(buffer, id_loc, nreBuffer, 0, length);
                             packets.Enqueue(new Packet(nreBuffer));
                         }
                     }
-                    position += length + id_loc;
+                    position = id_loc + length;
                 }
             }
         }
@@ -236,7 +246,7 @@ namespace MaldonServer.Network
                 return;
 
             byte[] buffer = p.Compile();
-            //Console.WriteLine("Sending Packet 0x{0:X2} {1}", p.PacketID, DateTime.Now.ToString("HH:mm:ss"));
+            Console.WriteLine("Sending Packet 0x{0:X2} {1}", p.PacketID, DateTime.Now.ToString("HH:mm:ss"));
 
             if (buffer != null)
             {
@@ -247,7 +257,6 @@ namespace MaldonServer.Network
 
                 try { 
                     socket.BeginSend(buffer, 0, length, SocketFlags.None, onSend, null);
-                        //Console.WriteLine( "Send: {0}: Begin send of {1} bytes", this, sendLength );
                 }
                 catch // ( Exception ex )
                 {

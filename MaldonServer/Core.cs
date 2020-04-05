@@ -70,6 +70,7 @@ namespace MaldonServer
             {
                 CurrentDomain_UnhandledException(null, new UnhandledExceptionEventArgs(e, true));
             }
+            //Console.Read();
         }
 
         private static void CurrentDomain_ProcessExit(object sender, EventArgs e)

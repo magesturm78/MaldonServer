@@ -6,7 +6,7 @@ namespace MaldonServer.Network
 {
     public class Packet
     {
-        public int PacketID { get { return buffer[0]; } }
+        public byte PacketID { get { return buffer[0]; } }
         private byte[] buffer;
         int index;
         public int Size { get; private set; }
@@ -34,7 +34,8 @@ namespace MaldonServer.Network
 
         internal void EnsureCapacity(byte packetID, int length)
         {
-            buffer = new byte[length];
+            Size = length + 1;
+            buffer = new byte[Size];
             buffer[0] = packetID;
             index = 1;
         }
@@ -148,7 +149,23 @@ namespace MaldonServer.Network
 
         public byte[] Compile()
         {
-            return buffer;
+            int byteSize = Size + 1;//packetID + size 
+            if (Size > 127) byteSize++;//increase size for over 127 bytes
+            byte[] data = new byte[byteSize];
+            int offset = 1;
+            if (Size >= 128)
+            {
+                data[0] = (byte)((Size & 0xFF00) >> 8);
+                data[1] = (byte)((Size & 0x00FF));
+                offset++;
+            }
+            else
+            {
+                data[0] = (byte)(Size + 128);
+            }
+            buffer.CopyTo(data, offset);
+
+            return data;
         }
     }
 }
