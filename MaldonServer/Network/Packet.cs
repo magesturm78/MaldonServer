@@ -27,13 +27,24 @@ namespace MaldonServer.Network
             Size = data.Length;
         }
 
-        public Packet(byte packetID, int length)
+        public Packet(byte packetID)
         {
-            EnsureCapacity(packetID, length);
+            buffer = new byte[1];
+            buffer[0] = packetID;
+            index = 1;
         }
 
-        internal void EnsureCapacity(byte packetID, int length)
+        public Packet(byte packetID, int length)
         {
+            Size = length + 1;
+            buffer = new byte[Size];
+            buffer[0] = packetID;
+            index = 1;
+        }
+
+        internal void EnsureCapacity(int length)
+        {
+            byte packetID = PacketID;
             Size = length + 1;
             buffer = new byte[Size];
             buffer[0] = packetID;
@@ -102,6 +113,26 @@ namespace MaldonServer.Network
             return sb.ToString();
         }
 
+        internal string ReadUnicodeString(int fixedLength)
+        {
+            int bound = index + (fixedLength << 1);
+            int end = bound;
+
+            if (bound > Size)
+                bound = Size;
+
+            StringBuilder sb = new StringBuilder();
+
+            int c;
+
+            while ((index + 1) < bound && (c = ((buffer[index++] << 8) | buffer[index++])) != 0)
+                sb.Append((char)c);
+
+            index = end;
+
+            return sb.ToString();
+        }
+
         internal string ReadNullString()
         {
             int end = Size;
@@ -147,25 +178,98 @@ namespace MaldonServer.Network
             index++;
         }
 
+        public void Write(short data)
+        {
+            Write((byte)((data & 0x00FF)));
+            Write((byte)((data & 0xFF00) >> 8));
+        }
+
+        public void Write(ushort data)
+        {
+            Write((byte)((data & 0x00FF)));
+            Write((byte)((data & 0xFF00) >> 8));
+        }
+
+        public void Write(double value)
+        {
+            Write((byte)(value / 8000000));
+            Write((byte)((value % 8000000) / 32768));
+            Write((byte)(value % 256));
+            Write((byte)((value % 32768) / 256));
+        }
+
+        public void WriteCompressed(short value)
+        {
+            if (value >= 128)
+            {
+                Write((byte)((value & 0xFF00) >> 8));
+                Write((byte)((value & 0x00FF)));
+            }
+            else
+            {
+                Write((byte)(value + 128));
+            }
+        }
+
+        public void WriteAsciiNull(string value)
+        {
+            if (value == null)
+            {
+                Console.WriteLine("Network: Attempted to WriteAsciiNull() with null value");
+                value = String.Empty;
+            } 
+            byte[] data = Encoding.ASCII.GetBytes(value);
+            Write(data);
+        }
+
+        public void Write(byte[] data)
+        {
+            data.CopyTo(buffer, index);
+            index += data.Length;
+        }
+
         public byte[] Compile()
         {
             int byteSize = Size + 1;//packetID + size 
-            if (Size > 127) byteSize++;//increase size for over 127 bytes
+            if (Size >= 128) byteSize++;//increase size for over 127 bytes
             byte[] data = new byte[byteSize];
             int offset = 1;
-            if (Size >= 128)
+            if (Size < 128)
+            {
+                data[0] = (byte)(Size + 128);
+            }
+            else
             {
                 data[0] = (byte)((Size & 0xFF00) >> 8);
                 data[1] = (byte)((Size & 0x00FF));
                 offset++;
             }
-            else
-            {
-                data[0] = (byte)(Size + 128);
-            }
             buffer.CopyTo(data, offset);
 
             return data;
+        }
+
+        public void Encrypt()
+        {
+            for (int i = 0; i < Size; i++)
+            {
+                int x = buffer[i];
+                int r1 = x;
+
+                int position = i;
+
+                if ((position % 2) == 1) r1 -= ((x % 2) * 2);
+                if (((position / 2) % 2) == 1) r1 -= (((x / 2) % 2) * 4);
+                if (((position / 4) % 2) == 1) r1 -= (((x / 4) % 2) * 8);
+                if (((position / 8) % 2) == 1) r1 -= (((x / 8) % 2) * 16);
+                if (((position / 16) % 2) == 1) r1 -= (((x / 16) % 2) * 32);
+                if (((position / 32) % 2) == 1) r1 -= (((x / 32) % 2) * 64);
+                if (((position / 64) % 2) == 1) r1 -= (((x / 64) % 2) * 128);
+
+                r1 += position;
+
+                buffer[i] = (byte)r1;
+            }
         }
     }
 }

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace MaldonServer.Network
 {
-    class Listener
+    public class Listener
     {
 		public static Listener Instance { get; private set; }
 
@@ -168,5 +168,14 @@ namespace MaldonServer.Network
         {
             PlayerSockets[socketID] = null;
         }
+
+		public void Broadcast(Packet p)
+		{
+			foreach (PlayerSocket ps in PlayerSockets)
+			{
+				if (ps != null && ps.Mobile != null)
+					ps.Send(p);
+			}
+		}
     }
 }

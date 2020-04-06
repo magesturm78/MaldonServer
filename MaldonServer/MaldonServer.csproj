@@ -49,8 +49,13 @@
   <ItemGroup>
     <Compile Include="Core.cs" />
     <Compile Include="EventSink.cs" />
+    <Compile Include="Geometry.cs" />
     <Compile Include="IAccount.cs" />
+    <Compile Include="Structures.cs" />
+    <Compile Include="IItem.cs" />
     <Compile Include="IMobile.cs" />
+    <Compile Include="Map.cs" />
+    <Compile Include="MapManager.cs" />
     <Compile Include="Network\Listener.cs" />
     <Compile Include="Network\Packet.cs" />
     <Compile Include="Network\PacketHandler.cs" />
@@ -68,7 +73,8 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>xcopy "$(ProjectDir)Scripts\*.*" "$(TargetDir)\Scripts" /Y /I /E</PreBuildEvent>
+    <PreBuildEvent>xcopy "$(ProjectDir)Scripts\*.*" "$(TargetDir)\Scripts" /Y /I /E
+xcopy "$(ProjectDir)Data\*.*" "$(TargetDir)\Data" /Y /I /E</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

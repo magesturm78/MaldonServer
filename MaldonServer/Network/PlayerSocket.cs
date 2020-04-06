@@ -15,7 +15,7 @@ namespace MaldonServer.Network
         private byte[] recvBuffer;
         private byte[] recvBuffer2;
 
-        //private DateTime nextCheckActivity;
+        private DateTime nextCheckActivity;
         private string Address;
         private Queue<Packet> packets;
 
@@ -27,6 +27,7 @@ namespace MaldonServer.Network
         public byte SocketID { get; private set; }
         public bool Running { get; private set; }
         public IAccount Account;
+        public IMobile Mobile;
 
         public PlayerSocket(Socket socket, byte socketID)
         {
@@ -36,7 +37,7 @@ namespace MaldonServer.Network
             recvBuffer = new byte[2048];
             packets = new Queue<Packet>();
 
-            //nextCheckActivity = DateTime.Now + TimeSpan.FromSeconds(15);
+            nextCheckActivity = DateTime.Now + TimeSpan.FromSeconds(15);
 
             try { Address = ((IPEndPoint)socket.RemoteEndPoint).Address.ToString(); }
             catch { Address = "";}
@@ -63,7 +64,7 @@ namespace MaldonServer.Network
             catch( Exception ex )
             {
                 Console.WriteLine(ex);
-                Dispose(false);
+                Dispose();
             }
         }
 
@@ -102,7 +103,7 @@ namespace MaldonServer.Network
 
                     if (byteCount > 0)
                     {
-                        //nextCheckActivity = DateTime.Now + TimeSpan.FromSeconds(15);
+                        nextCheckActivity = DateTime.Now + TimeSpan.FromSeconds(15);
 
                         //Console.WriteLine("Client: {0}: recieved data length {1}", this, byteCount);
 
@@ -113,13 +114,13 @@ namespace MaldonServer.Network
                     else
                     {
                         Console.WriteLine("Client Disconnected from server.");
-                        Dispose(false);
+                        Dispose();
                     }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex);
-                    Dispose(false);
+                    Dispose();
                 }
                 finally
                 {
@@ -140,7 +141,7 @@ namespace MaldonServer.Network
 
                 if (bytes <= 0)
                 {
-                    Dispose(false);
+                    Dispose();
                     return;
                 }
 
@@ -150,19 +151,16 @@ namespace MaldonServer.Network
             catch // ( Exception ex )
             {
                 //Console.WriteLine(ex);
-                Dispose(false);
+                Dispose();
             }
         }
 
-        public void Dispose(bool flush)
+        public void Dispose()
         {
             if (socket == null || disposing)
                 return;
 
             disposing = true;
-
-            //if (flush)
-            //    flush = Flush();
 
             try { socket.Shutdown(SocketShutdown.Both); }
             catch { }
@@ -262,7 +260,7 @@ namespace MaldonServer.Network
                 catch // ( Exception ex )
                 {
                     //Console.WriteLine(ex);
-                    Dispose(false);
+                    Dispose();
                 }
             }
         }

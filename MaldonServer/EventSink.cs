@@ -13,6 +13,9 @@ namespace MaldonServer
     public delegate void AccountCreateEventHandler(AccountCreateEventArgs e);
     public delegate void AccountLoginEventHandler(AccountLoginEventArgs e);
 
+    public delegate void CharacterLoginEventHandler(CharacterLoginEventArgs e);
+    public delegate void CharacterCreateEventHandler(CharacterCreateEventArgs e);
+
     public class SocketConnectEventArgs : EventArgs
     {
         public Socket Socket { get; private set; }
@@ -59,6 +62,41 @@ namespace MaldonServer
         }
     }
 
+    public class CharacterLoginEventArgs : EventArgs
+    {
+        public PlayerSocket PlayerSocket { get; }
+        public string Name { get; }
+        public string Password { get; }
+
+        public CharacterLoginEventArgs(PlayerSocket ps, string un, string pw)
+        {
+            PlayerSocket = ps;
+            Name = un;
+            Password = pw;
+        }
+    }
+
+    public class CharacterCreateEventArgs : EventArgs
+    {
+        public PlayerSocket PlayerSocket { get; }
+        public IMobile Mobile { get; set; }
+        public string Name { get; }
+        public string Password { get; }
+        public byte Gender { get; }
+        public byte Hair { get; }
+        public bool Accepted { get; set; }
+        public ALRReason RejectReason { get; set; }
+
+        public CharacterCreateEventArgs(PlayerSocket playerSocket, string name, string password, byte gender, byte hair)
+        {
+            PlayerSocket = playerSocket;
+            Name = name;
+            Password = password;
+            Gender = gender;
+            Hair = hair;
+        }
+    }
+
     public class EventSink
     {
         public static event ServerStartedEventHandler ServerStarted;
@@ -68,6 +106,8 @@ namespace MaldonServer
 
         public static event AccountCreateEventHandler AccountCreate;
         public static event AccountLoginEventHandler AccountLogin;
+        public static event CharacterCreateEventHandler CharacterCreate;
+        public static event CharacterLoginEventHandler CharacterLogin;
 
         public static void InvokeServerStarted()
         {
@@ -92,6 +132,16 @@ namespace MaldonServer
         public static void InvokeAccountLogin(AccountLoginEventArgs e)
         {
             AccountLogin?.Invoke(e);
+        }
+
+        public static void InvokeCharacterCreate(CharacterCreateEventArgs e)
+        {
+            CharacterCreate?.Invoke(e);
+        }
+
+        public static void InvokeCharacterLogin(CharacterLoginEventArgs e)
+        {
+            CharacterLogin?.Invoke(e);
         }
     }
 }

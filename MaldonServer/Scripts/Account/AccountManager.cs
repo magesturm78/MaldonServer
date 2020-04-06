@@ -1,9 +1,7 @@
 using System;
 using System.Collections;
-using System.IO;
-using System.Xml;
 
-namespace MaldonServer.Accounting
+namespace MaldonServer.Scripts.Accounting
 {
     public class AccountManager
     {

@@ -17,11 +17,13 @@ namespace MaldonServer.Network
 
             //Client initiailization packets
             Register(0x32, false, new OnPacketReceive(Stage1Responce));
-            Register(0x6D, false, new OnPacketReceive(Stage2Responce));
-            Register(0x29, false, new OnPacketReceive(Stage2Responce2));//Unknown
+            Register(0x6D, false, new OnPacketReceive(Stage2));
+            Register(0x29, false, new OnPacketReceive(Stage2Responce));//Unknown
 
             //Account packets
             Register(0x63, false, new OnPacketReceive(AccountPackets));
+            Register(0x02, false, new OnPacketReceive(LoginCharacter));
+            Register(0x03, false, new OnPacketReceive(CreateCharacter));
 
             //Misc Packets
             Register(0x16, false, new OnPacketReceive(PingReq));
@@ -33,14 +35,14 @@ namespace MaldonServer.Network
             socket.Send(new Stage1Reply());
         }
 
+        public static void Stage2(PlayerSocket socket, Packet packet)
+        {
+            socket.Send(new Stage2());
+        }
+
         public static void Stage2Responce(PlayerSocket socket, Packet packet)
         {
             socket.Send(new Stage2Reply());
-        }
-
-        public static void Stage2Responce2(PlayerSocket socket, Packet packet)
-        {
-            socket.Send(new Stage2Reply2());
         }
         #endregion
 
@@ -81,12 +83,40 @@ namespace MaldonServer.Network
                     socket.Send(new AccountCreateLoginReply(le.Reply));
                     break;
                 case 0x03://Get character List
-                    //socket.Send(new CharacterList(socket.Account));
+                    socket.Send(new CharacterList(socket.Account));
                     break;
                 default:
                     Console.WriteLine("Login: {0}: Unknow Account Action {1}", socket, accountAction);
                     break;
             }
+        }
+
+        public static void CreateCharacter(PlayerSocket socket, Packet packet)
+        {
+            string name = packet.ReadString(12).Trim();
+            string password = packet.ReadString(12).Trim();
+
+            packet.ReadByte(); packet.ReadByte(); packet.ReadByte(); packet.ReadByte();// 0x00 0x14 0x14 0x14 
+            packet.ReadByte(); packet.ReadByte(); packet.ReadByte(); packet.ReadByte();// 0x14 0x14 0x14 0x00
+            byte gender = packet.ReadByte();
+
+            string name2 = packet.ReadUnicodeString(12);
+            packet.ReadByte(); packet.ReadByte(); packet.ReadByte();// 0x04 0x00 0x00
+            byte hairID = packet.ReadByte();
+
+            Console.WriteLine("CreateChar: {0}: start", socket);
+
+            CharacterCreateEventArgs args = new CharacterCreateEventArgs(socket, name, password, gender, hairID);
+
+            EventSink.InvokeCharacterCreate(args);
+        }
+
+        public static void LoginCharacter(PlayerSocket socket, Packet packet)
+        {
+            string name = packet.ReadString(12).Trim();
+            string password = packet.ReadString(12).Trim();
+
+            EventSink.InvokeCharacterLogin(new CharacterLoginEventArgs(socket, name, password));
         }
 
         #region Class functions

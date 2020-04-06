@@ -8,7 +8,10 @@ namespace MaldonServer
 {
     public interface IAccount
     {
-		int Count { get; }
-		IMobile this[int index] { get; set; }
+        string UserName { get; set; }
+        /// <summary>
+        /// List of Characters for this account
+        /// </summary>
+		IMobile[] Mobiles { get; set; }
     }
 }
