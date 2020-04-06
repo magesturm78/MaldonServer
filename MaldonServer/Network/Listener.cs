@@ -98,15 +98,20 @@ namespace MaldonServer.Network
 			try
 			{
 				Socket s = listener.EndAccept(asyncResult);
-				for (byte i = 0; i < MaxConnections; i++)
-				{
-					if (PlayerSockets[i] == null)
-					{
-						PlayerSockets[i] = new PlayerSocket(s, i);
-						ConnectedCount++;
-						break;
-					}
-				}
+                SocketConnectEventArgs e = new SocketConnectEventArgs(s);
+                EventSink.InvokeSocketConnect(e);
+                if (e.AllowConnection)
+                {
+                    for (byte i = 0; i < MaxConnections; i++)
+                    {
+                        if (PlayerSockets[i] == null)
+                        {
+                            PlayerSockets[i] = new PlayerSocket(s, i);
+                            ConnectedCount++;
+                            break;
+                        }
+                    }
+                }
 			}
 			catch (Exception ex)
 			{

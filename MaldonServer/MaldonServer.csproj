@@ -48,6 +48,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core.cs" />
+    <Compile Include="EventSink.cs" />
+    <Compile Include="IAccount.cs" />
+    <Compile Include="Mobile.cs" />
     <Compile Include="Network\Listener.cs" />
     <Compile Include="Network\Packet.cs" />
     <Compile Include="Network\PacketHandler.cs" />
@@ -55,12 +58,18 @@
     <Compile Include="Network\ServerPackets.cs" />
     <Compile Include="Network\PlayerSocket.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScriptCompiler.cs" />
+    <Compile Include="Serial.cs" />
     <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>xcopy "$(ProjectDir)Scripts\*.*" "$(TargetDir)\Scripts" /Y /I /E</PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

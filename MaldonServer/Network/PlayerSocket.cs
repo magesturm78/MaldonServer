@@ -16,7 +16,7 @@ namespace MaldonServer.Network
         private byte[] recvBuffer2;
 
         //private DateTime nextCheckActivity;
-        //private IPAddress Address;
+        private string Address;
         private Queue<Packet> packets;
 
         private AsyncCallback onReceive, onSend;
@@ -26,6 +26,7 @@ namespace MaldonServer.Network
         /// </summary>
         public byte SocketID { get; private set; }
         public bool Running { get; private set; }
+        public IAccount Account;
 
         public PlayerSocket(Socket socket, byte socketID)
         {
@@ -37,8 +38,8 @@ namespace MaldonServer.Network
 
             //nextCheckActivity = DateTime.Now + TimeSpan.FromSeconds(15);
 
-            //try { Address = ((IPEndPoint)socket.RemoteEndPoint).Address; }
-            //catch { Address = IPAddress.None;}
+            try { Address = ((IPEndPoint)socket.RemoteEndPoint).Address.ToString(); }
+            catch { Address = "";}
 
             Start();
         }
@@ -81,7 +82,7 @@ namespace MaldonServer.Network
                     }
                     else
                     {
-                        Console.WriteLine("Recieved Packet 0x{0:X2} {1}", p.PacketID, DateTime.Now.ToString("HH:mm:ss"));
+                        //Console.WriteLine("Recieved Packet 0x{0:X2} {1}", p.PacketID, DateTime.Now.ToString("HH:mm:ss"));
                         handler.OnReceive(this, p);
                     }
                 }
@@ -266,5 +267,9 @@ namespace MaldonServer.Network
             }
         }
 
+        public override string ToString()
+        {
+            return Address;
+        }
     }
 }

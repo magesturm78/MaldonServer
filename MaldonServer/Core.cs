@@ -2,6 +2,7 @@
 using System;
 using System.Configuration;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 using System.Threading;
 
@@ -9,11 +10,17 @@ namespace MaldonServer
 {
     class Core
     {
-        private static Assembly m_Assembly;
+        private static Assembly assembly;
         //private static Process m_Process;
-        private static Thread m_Thread;
-        private static bool m_Closing;
+        private static Thread thread;
+
+        private static bool closing;
+        private static bool crashed;
+
         private static Listener serverListener;
+
+        public static int ItemCount { get; private set; }
+        public static int MobileCount { get; private set; }
 
         static void Main(string[] args)
         {
@@ -23,33 +30,112 @@ namespace MaldonServer
             }
         }
 
+        public static void VerifySerialization()
+        {
+            ItemCount = 0;
+            MobileCount = 0;
+
+            VerifySerialization(Assembly.GetCallingAssembly());
+            VerifySerialization(ScriptCompiler.CompiledAssembly);
+        }
+
+        private static void VerifySerialization(Assembly a)
+        {
+            if (a == null) return;
+
+            Type[] ctorTypes = new Type[] { typeof(Serial) };
+
+            foreach (Type t in a.GetTypes())
+            {
+                bool isItem = false;// t.IsSubclassOf(typeof(Item));
+
+                if (isItem || t.IsSubclassOf(typeof(Mobile)))
+                {
+                    if (isItem)
+                        ItemCount++;
+                    else
+                        MobileCount++;
+
+                    bool warned = false;
+
+                    try
+                    {
+                        if (t.GetConstructor(ctorTypes) == null)
+                        {
+                            if (!warned)
+                                Console.WriteLine("Warning: {0}", t);
+
+                            warned = true;
+                            Console.WriteLine("       - No serialization constructor");
+                        }
+
+                        if (t.GetMethod("Serialize", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly) == null)
+                        {
+                            if (!warned)
+                                Console.WriteLine("Warning: {0}", t);
+
+                            warned = true;
+                            Console.WriteLine("       - No Serialize() method");
+                        }
+
+                        if (t.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly) == null)
+                        {
+                            if (!warned)
+                                Console.WriteLine("Warning: {0}", t);
+
+                            warned = true;
+                            Console.WriteLine("       - No Deserialize() method");
+                        }
+
+                        if (warned)
+                            Console.WriteLine();
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+        }
+
         static void Start()
         {
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
             AppDomain.CurrentDomain.ProcessExit += new EventHandler(CurrentDomain_ProcessExit);
 
-            m_Thread = Thread.CurrentThread;
+            thread = Thread.CurrentThread;
             //m_Process = Process.GetCurrentProcess();
-            m_Assembly = Assembly.GetEntryAssembly();
+            assembly = Assembly.GetEntryAssembly();
 
-            if (m_Thread != null)
-                m_Thread.Name = "Core Thread";
+            if (thread != null)
+                thread.Name = "Core Thread";
 
             //Timer.TimerThread ttObj = new Timer.TimerThread();
             //timerThread = new Thread(new ThreadStart(ttObj.TimerMain));
             //timerThread.Name = "Timer Thread";
 
-            Version ver = m_Assembly.GetName().Version;
+            Version ver = assembly.GetName().Version;
 
             // Added to help future code support on forums, as a 'check' people can ask for to it see if they recompiled core or not
-            Console.WriteLine("MagesServer - Version {0}.{1}.{3}, Build {2}", ver.Major, ver.Minor, ver.Revision, ver.Build);
-            
+            Console.WriteLine("MaldonServer - Version {0}.{1}.{3}, Build {2}", ver.Major, ver.Minor, ver.Revision, ver.Build);
+
+            while (!ScriptCompiler.Compile())
+            {
+                Console.WriteLine("Scripts: One or more scripts failed to compile or no script files were found.");
+                Console.WriteLine(" - Press return to exit, or R to try again.");
+
+                string line = Console.ReadLine();
+                if (line == null || line.ToLower() != "r")
+                    return;
+            }
+
             int port = Int32.Parse(ConfigurationManager.AppSettings["Port"].ToString());
             serverListener = new Listener(port);
 
+            EventSink.InvokeServerStarted();
+
             try
             {
-                while (!m_Closing)
+                while (!closing)
                 {
                     Thread.Sleep(1);
 
@@ -80,12 +166,53 @@ namespace MaldonServer
 
         private static void HandleClosed()
         {
-            if (m_Closing)
+            if (closing)
                 return;
 
-            m_Closing = true;
-
+            closing = true;
             Console.Write("Exiting...");
+
+            if (!crashed)
+                EventSink.InvokeServerShutdown();
+
+            Console.Write("done.");
+        }
+
+        private static string exePath;
+        private static string baseDirectory;
+
+        public static string ExePath
+        {
+            get
+            {
+                if (exePath == null)
+                    exePath = Process.GetCurrentProcess().MainModule.FileName;
+
+                return exePath;
+            }
+        }
+
+        public static string BaseDirectory
+        {
+            get
+            {
+                if (baseDirectory == null)
+                {
+                    try
+                    {
+                        baseDirectory = ExePath;
+
+                        if (baseDirectory.Length > 0)
+                            baseDirectory = Path.GetDirectoryName(baseDirectory);
+                    }
+                    catch
+                    {
+                        baseDirectory = "";
+                    }
+                }
+
+                return baseDirectory;
+            }
         }
 
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -94,8 +221,8 @@ namespace MaldonServer
 			Console.WriteLine(e.ExceptionObject);
             if (e.IsTerminating)
             {
-                //m_Crashed = true;
-                m_Closing = true;
+                crashed = true;
+                closing = true;
             }
         }
     }
