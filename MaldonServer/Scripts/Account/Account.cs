@@ -5,6 +5,8 @@ namespace MaldonServer.Accounting
     public class Account : IAccount
     {
         private Mobile[] Mobiles;
+        public string UserName { get; private set; }
+        private string plainPassword;
 
         public int Count
         {
@@ -61,6 +63,12 @@ namespace MaldonServer.Accounting
 
         public static void Initialize()
         {
+        }
+
+        public Account(string username, string password)
+        {
+            this.UserName = username;
+            this.plainPassword = password;
         }
     }
 }
