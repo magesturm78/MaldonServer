@@ -39,9 +39,29 @@ namespace MaldonServer.Accounting
             string pw = e.Password;
 
             e.Accepted = false;
-            //Account acct = Accounts.GetAccount(un);
-            Console.WriteLine("EventSink_AccountLogin");
-            e.Reply = ALRReason.BadPass;
+            Account acct = AccountManager.GetAccount(un);
+            if (acct == null)
+            {
+                Console.WriteLine("Login: {0}: Invalid username '{1}'", e.PlayerSocket, un);
+                e.Reply = ALRReason.InvalidAccount;
+            }
+            else if (acct.Banned)
+            {
+                Console.WriteLine("Login: {0}: Banned account '{1}'", e.PlayerSocket, un);
+                e.Reply = ALRReason.Blocked;
+            }
+            else if (!acct.ValidPassword(pw))
+            {
+                Console.WriteLine("Login: {0}: Invalid password for '{1}'", e.PlayerSocket, un);
+                e.Reply = ALRReason.BadPass;
+            }
+            else
+            {
+                Console.WriteLine( "Login: {0}: Valid credentials for '{1}'", e.PlayerSocket, un );
+                e.PlayerSocket.Account = acct;
+                e.Accepted = true;
+                e.Reply = ALRReason.CorrectPassword;
+            }
         }
 
         public static void EventSink_AccountCreate(AccountCreateEventArgs e)

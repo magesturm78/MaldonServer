@@ -2,11 +2,23 @@ using MaldonServer;
 
 namespace MaldonServer.Accounting
 {
+    public enum AccessLevel
+    {
+		Peasant = 0,
+		Citizen = 1,
+		Moderator = 2,
+		GameMaster = 3,
+		Developer = 4,
+		Administrator = 5
+    }
+
     public class Account : IAccount
     {
-        private Mobile[] Mobiles;
+        private IMobile[] Mobiles;
+        public AccessLevel AccessLevel { get; set; }
         public string UserName { get; private set; }
-        private string plainPassword;
+        public bool Banned { get; private set; }
+        private string password;
 
         public int Count
         {
@@ -24,13 +36,13 @@ namespace MaldonServer.Accounting
             }
         }
 
-        public Mobile this[int index]
+        public IMobile this[int index]
         {
             get
             {
                 if (index >= 0 && index < Mobiles.Length)
                 {
-                    Mobile m = Mobiles[index];
+                    IMobile m = Mobiles[index];
 
                     if (m != null )//&& m.Deleted)
                     {
@@ -68,7 +80,13 @@ namespace MaldonServer.Accounting
         public Account(string username, string password)
         {
             this.UserName = username;
-            this.plainPassword = password;
+            this.password = password;
+            Banned = false;
+        }
+
+        public bool ValidPassword(string pw)
+        {
+            return (string.Compare(password, pw) == 0);
         }
     }
 }

@@ -123,7 +123,7 @@ namespace MaldonServer.Network
 			}
 		}
 
-		public void QueueSocket(int socketID)
+        internal void QueueSocket(int socketID)
 		{
 			lock (socketsQueue)
 			{
@@ -163,5 +163,10 @@ namespace MaldonServer.Network
 				}
 			}
 		}
-	}
+
+        internal void RemoveSocket(byte socketID)
+        {
+            PlayerSockets[socketID] = null;
+        }
+    }
 }

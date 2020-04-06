@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace MaldonServer
 {
-    public class Mobile
+    public interface IMobile
     {
-        public IAccount Account;
+        IAccount Account { get; set; }
     }
 }

@@ -176,7 +176,7 @@ namespace MaldonServer.Network
             onSend = null;
             Running = false;
 
-            //m_Disposed.Enqueue(this);
+            Listener.Instance.RemoveSocket(SocketID);
         }
 
         private void HandleData(int size)

@@ -17,8 +17,8 @@ namespace MaldonServer.Accounting
         public static Account AddAccount(string user, string pass)
         {
             Account a = new Account(user, pass);
-            //if (Accounts.Count == 0)
-            //    a.AccessLevel = AccessLevel.Administrator;
+            if (Accounts.Count == 0)
+                a.AccessLevel = AccessLevel.Administrator;
 
             Accounts[a.UserName] = a;
 

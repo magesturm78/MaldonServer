@@ -9,6 +9,6 @@ namespace MaldonServer
     public interface IAccount
     {
 		int Count { get; }
-		Mobile this[int index] { get; set; }
+		IMobile this[int index] { get; set; }
     }
 }

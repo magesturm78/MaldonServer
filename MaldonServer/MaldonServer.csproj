@@ -50,7 +50,7 @@
     <Compile Include="Core.cs" />
     <Compile Include="EventSink.cs" />
     <Compile Include="IAccount.cs" />
-    <Compile Include="Mobile.cs" />
+    <Compile Include="IMobile.cs" />
     <Compile Include="Network\Listener.cs" />
     <Compile Include="Network\Packet.cs" />
     <Compile Include="Network\PacketHandler.cs" />

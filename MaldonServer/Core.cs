@@ -49,7 +49,7 @@ namespace MaldonServer
             {
                 bool isItem = false;// t.IsSubclassOf(typeof(Item));
 
-                if (isItem || t.IsSubclassOf(typeof(Mobile)))
+                if (isItem || t.IsSubclassOf(typeof(IMobile)))
                 {
                     if (isItem)
                         ItemCount++;
