@@ -84,7 +84,7 @@ namespace MaldonServer.Scripts.Accounting
             newChar.MoveToWorld(pStart, MapManager.Internal);
 
             Console.WriteLine("Login: {0}: New character being created (account={1})", args.PlayerSocket, ((Account)args.PlayerSocket.Account).UserName);
-            Console.WriteLine(" - Character: {0} (serial={1})", newChar.Name, newChar.Serial);
+            Console.WriteLine(" - Character: {0}", newChar.Name);
             return newChar;
         }
     }

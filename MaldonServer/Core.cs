@@ -22,7 +22,7 @@ namespace MaldonServer
         public static int ItemCount { get; private set; }
         public static int MobileCount { get; private set; }
 
-        static void Main(string[] args)
+        static void Main(/*string[] args*/)
         {
             if (Environment.UserInteractive)
             {
@@ -43,8 +43,6 @@ namespace MaldonServer
         {
             if (a == null) return;
 
-            Type[] ctorTypes = new Type[] { typeof(Serial) };
-
             foreach (Type t in a.GetTypes())
             {
                 bool isItem = false;// t.IsSubclassOf(typeof(Item));
@@ -55,44 +53,6 @@ namespace MaldonServer
                         ItemCount++;
                     else
                         MobileCount++;
-
-                    bool warned = false;
-
-                    try
-                    {
-                        if (t.GetConstructor(ctorTypes) == null)
-                        {
-                            if (!warned)
-                                Console.WriteLine("Warning: {0}", t);
-
-                            warned = true;
-                            Console.WriteLine("       - No serialization constructor");
-                        }
-
-                        if (t.GetMethod("Serialize", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly) == null)
-                        {
-                            if (!warned)
-                                Console.WriteLine("Warning: {0}", t);
-
-                            warned = true;
-                            Console.WriteLine("       - No Serialize() method");
-                        }
-
-                        if (t.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly) == null)
-                        {
-                            if (!warned)
-                                Console.WriteLine("Warning: {0}", t);
-
-                            warned = true;
-                            Console.WriteLine("       - No Deserialize() method");
-                        }
-
-                        if (warned)
-                            Console.WriteLine();
-                    }
-                    catch
-                    {
-                    }
                 }
             }
         }

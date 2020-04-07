@@ -19,7 +19,7 @@ namespace MaldonServer.Network
 		private Socket listener;
 		private bool disposed;
 		private readonly AsyncCallback onAccept;
-		private readonly PlayerSocket[] PlayerSockets;
+		public PlayerSocket[] PlayerSockets { get; private set; }
 		private readonly Queue<int> socketsQueue;
 
 		public Listener(int port)

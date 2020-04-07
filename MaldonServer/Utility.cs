@@ -6,7 +6,7 @@ namespace MaldonServer
 {
     public class Utility
     {
-		private static Random random = new Random();
+		private static readonly Random random = new Random();
 
 		public static int Random(int from, int count)
 		{
@@ -22,6 +22,17 @@ namespace MaldonServer
 			{
 				return from - random.Next(-count);
 			}
+		}
+
+		public static double GetAngle(Point3D startLoc, Point3D endLoc)
+		{
+			float xDiff = endLoc.X - startLoc.X;
+			float yDiff = endLoc.Y - startLoc.Y;
+			double angle = (Math.Atan2(yDiff, xDiff) * 180.0 / Math.PI);
+			angle += 180;
+			angle = (angle / 2);
+			angle += 160;
+			return angle;
 		}
 	}
 }

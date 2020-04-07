@@ -8,7 +8,7 @@ namespace MaldonServer
 {
     public class Map
     {
-        public int MapID { get; set; }
+        public byte MapID { get; set; }
         public byte Brightness { get; set; }
     }
 }

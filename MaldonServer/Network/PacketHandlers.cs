@@ -69,7 +69,7 @@ namespace MaldonServer.Network
                     Console.WriteLine("Login: {0}: AccountCreate", socket);
                     EventSink.InvokeAccountCreate(ce);
 
-                    socket.Send(new AccountCreateLoginReply(ce.Reply));
+                    socket.Send(new AccountCreateLoginReplyPacket(ce.Reply));
                     break;
                 case 0x01://Login account
                     username = packet.ReadString(15).Trim();
@@ -80,10 +80,10 @@ namespace MaldonServer.Network
                     Console.WriteLine( "Login: {0}: AccountLogin", socket );
                     EventSink.InvokeAccountLogin(le);
 
-                    socket.Send(new AccountCreateLoginReply(le.Reply));
+                    socket.Send(new AccountCreateLoginReplyPacket(le.Reply));
                     break;
                 case 0x03://Get character List
-                    socket.Send(new CharacterList(socket.Account));
+                    socket.Send(new CharacterListPacket(socket.Account));
                     break;
                 default:
                     Console.WriteLine("Login: {0}: Unknow Account Action {1}", socket, accountAction);

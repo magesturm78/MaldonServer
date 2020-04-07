@@ -12,9 +12,10 @@ namespace MaldonServer.Network
         public int Size { get; private set; }
         public bool HasData { get { return index < Size; } }
 
-        List<byte> decryptIDs = new List<byte> { 0x47, 0x48, 0x49, 0x4A, 0x4E, 0x4F,
+        readonly List<byte> decryptIDs = new List<byte> { 0x47, 0x48, 0x49, 0x4A, 0x4E, 0x4F,
                                          0x53, 0x54, 0x56, 0x5B, 0x5D, 0x5E, 0x60, 0xC7 };
 
+        //Read packets
         public Packet(byte[] data)
         {
             if (decryptIDs.Contains(data[0]))
@@ -27,6 +28,7 @@ namespace MaldonServer.Network
             Size = data.Length;
         }
 
+        //Write Packets
         public Packet(byte packetID)
         {
             buffer = new byte[1];
@@ -34,6 +36,7 @@ namespace MaldonServer.Network
             index = 1;
         }
 
+        //Write Packets
         public Packet(byte packetID, int length)
         {
             Size = length + 1;
@@ -42,6 +45,7 @@ namespace MaldonServer.Network
             index = 1;
         }
 
+        //Write Packets
         internal void EnsureCapacity(int length)
         {
             byte packetID = PacketID;
@@ -220,6 +224,25 @@ namespace MaldonServer.Network
             } 
             byte[] data = Encoding.ASCII.GetBytes(value);
             Write(data);
+        }
+
+        public void WriteAsciiFixed(string value, int size)
+        {
+            if (value == null)
+            {
+                Console.WriteLine("Network: Attempted to WriteAsciiFixed() with null value");
+                value = String.Empty;
+            }
+            if (value.Length > size)
+            {
+                Console.WriteLine("Network: Attempted to WriteAsciiFixed() with value longer than size");
+                value = value.Substring(0, size);
+            }
+            byte[] data = Encoding.ASCII.GetBytes(value);
+
+            Write(data);
+            for (int i = data.Length; i < size; i++)
+                Write((byte)0x20);
         }
 
         public void Write(byte[] data)

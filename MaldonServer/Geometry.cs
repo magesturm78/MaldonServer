@@ -14,18 +14,18 @@ namespace MaldonServer
 
 	public interface IPoint3D : IPoint2D
 	{
-		int Z { get; }
+		byte Z { get; }
 	}
 
 	public struct Point3D : IPoint3D
 	{
 		public int X { get; private set; }
 		public int Y { get; private set; }
-		public int Z { get; private set; }
+		public byte Z { get; private set; }
 
 		public static readonly Point3D Zero = new Point3D(0, 0, 0);
 
-		public Point3D(int x, int y, int z)
+		public Point3D(int x, int y, byte z)
 		{
 			X = x;
 			Y = y;
@@ -36,7 +36,7 @@ namespace MaldonServer
 		{
 		}
 
-		public Point3D(IPoint2D p, int z) : this(p.X, p.Y, z)
+		public Point3D(IPoint2D p, byte z) : this(p.X, p.Y, z)
 		{
 		}
 
@@ -77,7 +77,7 @@ namespace MaldonServer
 
 			string param3 = value.Substring(start + 1, end - (start + 1)).Trim();
 
-			return new Point3D(Convert.ToInt32(param1), Convert.ToInt32(param2), Convert.ToInt32(param3));
+			return new Point3D(Convert.ToInt32(param1), Convert.ToInt32(param2), Convert.ToByte(param3));
 		}
 
 		public static bool operator ==(Point3D l, Point3D r)

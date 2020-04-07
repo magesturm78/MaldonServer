@@ -11,15 +11,20 @@ namespace MaldonServer
 
     public interface IMobile : IPoint3D
     {
+        byte Direction { get; }
+        int NPCId { get;  }
+        int NameID { get; }
+        Body Body { get; }
         String Name { get; set; }
-        int Level { get; set; }
-        double Experience { get; set; }
+        int Level { get; }
+        double Experience { get; }
         byte Gender { get; set; }
-        byte AttackRating { get; set; }
+        byte AttackRating { get; }
         short HairID { get; set; }
-        Map Map { get; set; }
+        Map Map { get; }
         SpawnLocation SpawnLocation { get; set; }
         ContainerItem[] Backpack { get; set; }
+        BankBox Bank { get; set; }
         IItem Weapon { get; set; }
         IItem ChestArmor { get; set; }
         IItem ShieldArmor { get; set; }
@@ -32,21 +37,22 @@ namespace MaldonServer
         Skill[] Skills { get; set; }
         byte GuildHallId { get; set; }
         byte HouseId { get; set; }
-        MailMessage[] Mail { get; set; }
+        MailMessage[] Mail { get; }
 
         int AvailablePoints { get; set; }
-        Stats RawStats { get; set; }
+        Stats RawStats { get; }
 
         int Health { get; set; }
-        int HealthMax { get; set; }
+        int HealthMax { get;  }
         int Mana { get; set; }
-        int ManaMax { get; set; }
+        int ManaMax { get; }
         int Energy { get; set; }
-        int EnergyMax { get; set; }
+        int EnergyMax { get; }
 
-        int MeleeDamageMin { get; set; }
-        int MeleeDamageMax { get; set; }
-
+        int MeleeDamageMin { get; }
+        int MeleeDamageMax { get; }
+        bool Player { get; }
+        byte ReligionId { get; }
         IAccount Account { get; set; }
         PlayerSocket PlayerSocket { get; set; }
 

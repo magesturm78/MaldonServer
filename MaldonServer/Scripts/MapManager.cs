@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MaldonServer
+namespace MaldonServer.Scripts
 {
     public class MapManager
     {
-        private static Hashtable maps;
+        private static readonly Hashtable maps;
 
         public static Map Internal { get { return (Map)maps[0]; } }
 
@@ -18,9 +15,17 @@ namespace MaldonServer
             return (Map)maps[mapID];
         }
 
+        public static void AddMap(Map map)
+        {
+            maps[map.MapID] = map;
+        }
+
         static MapManager()
         {
-            maps.Add(0, null);//Internal Map
+            maps = new Hashtable
+            {
+                { 0, null }//Internal Map
+            };
         }
     }
 }

@@ -7,11 +7,20 @@ namespace MaldonServer.Scripts
 {
     public class PlayerMobile : IMobile
     {
-        public Serial Serial { get; set; }
         public int X { get; private set; }
         public int Y { get; private set; }
-        public int Z { get; private set; }
+        public byte Z { get; private set; }
 
+        public int NPCId { get { return -1; } }
+        public byte Direction { get; set; }
+        public int NameID { get; set; }
+        public Body Body { get; set; }
+        /* 0 == Agnostic
+           1 == Initiate,   Believer
+           2 == Believer,   Priest
+        */
+        public byte ReligionId { get; set; }
+        public bool Player { get { return true; } }
         public String Name { get; set; }
         public String Password { get; set; }
         public int Level { get; set; }
@@ -26,6 +35,7 @@ namespace MaldonServer.Scripts
             }
             set { } }
         public ContainerItem[] Backpack { get; set; }
+        public BankBox Bank { get; set; }
         public IItem Weapon { get; set; }
         public IItem ChestArmor { get; set; }
         public IItem ShieldArmor { get; set; }
@@ -56,9 +66,21 @@ namespace MaldonServer.Scripts
         public IAccount Account { get; set; }
         public PlayerSocket PlayerSocket { get; set; }
 
+        public void Spawn()
+        {
+            Map = SpawnLocation.Map;
+            SetLocation(SpawnLocation.Location, true);
+        }
+
         public void SetLocation(IPoint3D location, bool teleport)
         {
-
+            if (teleport)
+            {
+                X = location.X;
+                Y = location.Y;
+                Z = location.Z;
+                return;
+            }
         }
 
         public void LocalMessage(MessageType msgType, string message)

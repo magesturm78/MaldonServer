@@ -2,15 +2,6 @@ using MaldonServer;
 
 namespace MaldonServer.Scripts.Accounting
 {
-    public enum AccessLevel
-    {
-		Peasant = 0,
-		Citizen = 1,
-		Moderator = 2,
-		GameMaster = 3,
-		Developer = 4,
-		Administrator = 5
-    }
 
     public class Account : IAccount
     {
