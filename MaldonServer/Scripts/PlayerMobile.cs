@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using MaldonServer;
 using MaldonServer.Network;
 using MaldonServer.Network.ServerPackets;
@@ -29,12 +30,8 @@ namespace MaldonServer.Scripts
         public byte AttackRating { get; set; }
         public short HairID { get; set; }
         public IMap Map { get; set; }
-        public SpawnLocation SpawnLocation { get
-            {
-                return new SpawnLocation(MapManager.GetMap(7), new Point3D(343, 91, 0));
-            }
-            set { } }
-        public ContainerItem[] Backpack { get; set; }
+        public SpawnLocation SpawnLocation { get; set; }
+        public List<ContainerItem> Backpack { get; set; }
         public BankBox Bank { get; set; }
         public IItem Weapon { get; set; }
         public IItem ChestArmor { get; set; }
@@ -44,11 +41,11 @@ namespace MaldonServer.Scripts
         public IItem Ring2 { get; set; }
         public IItem HandArmor { get; set; }
         public IItem Boots { get; set; }
-        public LearnedSpell[] Spells { get; set; }
+        public List<LearnedSpell> Spells { get; set; }
         public Skill[] Skills { get; set; }
         public byte GuildHallId { get; set; }
         public byte HouseId { get; set; }
-        public MailMessage[] Mail { get; set; }
+        public List<MailMessage> Mail { get; set; }
 
         public int AvailablePoints { get; set; }
         public Stats RawStats { get; set; }
@@ -65,6 +62,16 @@ namespace MaldonServer.Scripts
 
         public IAccount Account { get; set; }
         public PlayerSocket PlayerSocket { get; set; }
+
+        public PlayerMobile()
+        {
+            Map = MapManager.Internal;
+            SpawnLocation = new SpawnLocation(MapManager.GetMap(7), new Point3D(343, 91, 0));
+            Backpack = new List<ContainerItem>();
+            Mail = new List<MailMessage>();
+            Spells = new List<LearnedSpell>();
+            Skills = new Skill[33];
+        }
 
         public void Spawn()
         {
@@ -114,6 +121,14 @@ namespace MaldonServer.Scripts
         public void CreateGuild(string guildName) { }
         public void BuyGuildHall(IGuild guild, byte guildHallID) { }
         public void SellGuildHall(IGuild guild) { }
+        public void SendMailList() { }
+        public void ShowMailMessage(int mailMessageID) { }
+        public void GetItemFromMail(int mailMessageID, byte itemNum) { }
+        public void SendMail(string toName, string subject, string content, List<int> mailItems) { }
+        public void ShowMarket(byte marketTab) { }
+        public void SellItemOnMarket(byte marketTab, int itemLocation, int totalCost) { }
+        public void BuyItemOnMarket(byte marketTab, byte itemLocation, byte additionalData) { }
+        public void GetMapPatch(byte mapId, short sector) { }
 
         public void MoveToWorld(Point3D newLocation, IMap map)
         {

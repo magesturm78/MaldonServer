@@ -9,15 +9,14 @@ namespace MaldonServer.Scripts.Accounting
 	{
 		private static Hashtable Players;
 
-		public static void Initialize()
-		{
-			//Initialization script
-		}
-
 		static PlayerManager()
         {
             Players = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
 		}
 
-    }
+		public static bool PlayerExists(string name)
+		{
+			return (Players[name] != null);
+		}
+	}
 }

@@ -1,6 +1,7 @@
 ﻿using MaldonServer.Network;
 using MaldonServer.Network.ServerPackets;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,7 +24,7 @@ namespace MaldonServer
         short HairID { get; set; }
         IMap Map { get; }
         SpawnLocation SpawnLocation { get; set; }
-        ContainerItem[] Backpack { get; set; }
+        List<ContainerItem> Backpack { get; set; }
         BankBox Bank { get; set; }
         IItem Weapon { get; set; }
         IItem ChestArmor { get; set; }
@@ -33,11 +34,11 @@ namespace MaldonServer
         IItem Ring2 { get; set; }
         IItem HandArmor { get; set; }
         IItem Boots { get; set; }
-        LearnedSpell[] Spells { get; set; }
+        List<LearnedSpell> Spells { get; set; }
         Skill[] Skills { get; set; }
         byte GuildHallId { get; set; }
         byte HouseId { get; set; }
-        MailMessage[] Mail { get; }
+        List<MailMessage> Mail { get; }
 
         int AvailablePoints { get; set; }
         Stats RawStats { get; }
@@ -88,5 +89,13 @@ namespace MaldonServer
         void CreateGuild(string guildName);
         void BuyGuildHall(IGuild guild, byte guildHallID);
         void SellGuildHall(IGuild guild);
+        void SendMailList();
+        void ShowMailMessage(int mailMessageID);
+        void GetItemFromMail(int mailMessageID, byte itemNum);
+        void SendMail(string toName, string subject, string content, List<int> mailItems);
+        void ShowMarket(byte marketTab);
+        void SellItemOnMarket(byte marketTab, int itemLocation, int totalCost);
+        void BuyItemOnMarket(byte marketTab, byte itemLocation, byte additionalData);
+        void GetMapPatch(byte mapId, short sector);
     }
 }

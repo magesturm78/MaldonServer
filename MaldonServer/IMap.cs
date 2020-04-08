@@ -15,6 +15,8 @@ namespace MaldonServer
         IMobile GetMobile(int mobileID);
         void AddProjectile(ProjectTileType ProjectTileType, Point3D location, byte dir);
         void GetDoorStatus(IMobile mobile, Point3D location);
-        void GetMapSector(IMobile mobile, short loc1);
+        void GetMapSector(IMobile mobile, short sector);
+        void UpdateData(short sector, byte[] data);
+        void RecomputeCheckSum(short sector);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using MaldonServer.Network.ServerPackets;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -55,18 +56,18 @@ namespace MaldonServer.Network
 
             Register(0x45, true, new OnPacketReceive(InteractGuild));//Guild Stuff
 
-            //Register(0x5C, true, new OnPacketReceive(GetMapPatch));
-            //Register(0x5E, true, new OnPacketReceive(CompletePatchMap));
-            //Register(0x5D, true, new OnPacketReceive(PatchMap));//set to false to use external map editor
+            Register(0x5C, true, new OnPacketReceive(GetMapPatch));
+            Register(0x5E, true, new OnPacketReceive(CompletePatchMap));
+            Register(0x5D, true, new OnPacketReceive(PatchMap));//set to false to use external map editor
             Register(0x60, true, new OnPacketReceive(GetSectorName));
 
-            //Register(0x64, true, new OnPacketReceive(Unknown64));
+            Register(0x64, true, new OnPacketReceive(Unknown64));
 
-            //Register(0x35, true, new OnPacketReceive(ScriptUpload));
-            //Register(0x36, true, new OnPacketReceive(ScriptDownload));
+            Register(0x35, true, new OnPacketReceive(ScriptUpload));
+            Register(0x36, true, new OnPacketReceive(ScriptDownload));
 
-            //Register(0x1C, true, new OnPacketReceive(GetEditNPCInfo));//Create NPC/Upload NPC Script
-            //Register(0x1D, true, new OnPacketReceive(CreateMobInfo));//Create Mob
+            Register(0x1C, true, new OnPacketReceive(GetEditNPCInfo));//Create NPC/Upload NPC Script
+            Register(0x1D, true, new OnPacketReceive(CreateMobInfo));//Create Mob
         }
 
         #region Client initialization packets
@@ -561,6 +562,182 @@ namespace MaldonServer.Network
                     Console.WriteLine(String.Format("Unknown guild Interaction"));
                     break;
             }
+        }
+
+        public static void GetMapPatch(PlayerSocket socket, Packet packet)
+        {
+            byte mapID = packet.ReadByte();
+            short sector = packet.ReadInt16();
+
+            socket.Mobile.GetMapPatch(mapID, sector);
+
+        }
+
+        public static void CompletePatchMap(PlayerSocket socket, Packet packet)
+        {
+            socket.Send(new Unk51Packet());
+        }
+
+        public static void PatchMap(PlayerSocket socket, Packet packet)
+        {
+            byte MapID = packet.ReadByte();
+            short sector = packet.ReadInt16();
+
+            byte[] data = packet.ReadBytesToEOF();
+
+            IMap map = World.GetMapByID(MapID);
+            map.UpdateData(sector, data);
+            map.RecomputeCheckSum(sector);
+        }
+
+        public static void Unknown64(PlayerSocket socket, Packet packet)
+        {
+            byte val1 = packet.ReadByte();
+            byte marketTab;
+            byte itemID;
+            int mailMessageID = 0;
+            switch (val1)
+            {
+                case 0x00://Mail
+                    {
+                        socket.Mobile.SendMailList();
+                        break;
+                    }
+                case 0x01://Read Message
+                    {
+                        mailMessageID += packet.ReadByte() * 32768;
+                        mailMessageID += packet.ReadByte();
+                        mailMessageID += packet.ReadByte() * 256;
+                        socket.Mobile.ShowMailMessage(mailMessageID);
+                        break;
+                    }
+                case 0x02://GetItem from Message
+                    {
+                        mailMessageID += packet.ReadByte() * 32768;
+                        mailMessageID += packet.ReadByte();
+                        mailMessageID += packet.ReadByte() * 256;
+                        byte itemNum = packet.ReadByte();
+                        socket.Mobile.GetItemFromMail(mailMessageID, itemNum);
+                        break;
+                    }
+                case 0x03://Compose new Mail Message
+                    {
+                        List<int> mailItems = new List<int>(4);
+                        for (int i = 0; i < 4; i++)
+                        {
+                            byte locationID = packet.ReadByte();//Item1
+                            mailItems[i] = locationID;
+                        }
+                        byte subjectLen = packet.ReadByte();
+                        byte toLen = packet.ReadByte();
+                        int contentLen = packet.ReadInt16();
+                        string subject = packet.ReadString(subjectLen);
+                        string toName = packet.ReadString(toLen);
+                        string content = packet.ReadString(contentLen);
+                        socket.Mobile.SendMail(toName, subject, content, mailItems);
+                        break;
+                    }
+                case 0x20://Market
+                    {
+                        marketTab = packet.ReadByte();
+                        //state.Mobile.SendPopupMessage(String.Format("Open Market {0}",marketTab));
+                        socket.Mobile.ShowMarket(marketTab);
+                        break;
+                    }
+                case 0x21://Sell Item in Market
+                    {
+                        marketTab = packet.ReadByte();
+                        int itemLocation = packet.ReadByte();
+                        int totalCost = packet.ReadInt32();
+                        socket.Mobile.SellItemOnMarket(marketTab, itemLocation, totalCost);
+                        break;
+                    }
+                case 0x22://Buy Market
+                    {
+                        marketTab = packet.ReadByte();
+                        byte unk1 = packet.ReadByte();//0x07 might be map ID???
+                        itemID = packet.ReadByte();
+                        socket.Mobile.BuyItemOnMarket(marketTab, itemID, unk1);
+                        break;
+                    }
+                case 0x44:
+                    //state.Mobile.SendPopupMessage("64 Packet 44");
+                    socket.Send(new Unk64ReplyPacket(socket.Mobile));
+                    break;
+                default:
+                    Console.WriteLine("Client: {0}: Unhandled packet 0x64 sub 0x{1:X2}", socket, val1);
+                    break;
+            }
+            //byte val2 = pvSrc.ReadByte();
+        }
+
+        public static void ScriptUpload(PlayerSocket socket, Packet packet)
+        {
+            try
+            {
+                NPCSpawnInfo spawnInfo = new NPCSpawnInfo();
+                spawnInfo.ScriptName = packet.ReadString(16).Trim();
+                spawnInfo.NpcName = packet.ReadString(16).Trim();
+                spawnInfo.Picture = packet.ReadInt16();//Picture
+                spawnInfo.Weapon = packet.ReadInt16();//Weapon
+                spawnInfo.Shield = packet.ReadInt16();//Shield
+                spawnInfo.Helmet = packet.ReadInt16();//Helmet
+                spawnInfo.Gauntlet = packet.ReadInt16();//Gauntlet
+                spawnInfo.Boots = packet.ReadInt16();//Boots
+                spawnInfo.Armour = packet.ReadInt16();//Armour
+                spawnInfo.Gender = packet.ReadByte();//Gender
+
+                byte[] data = packet.ReadBytesToEOF();
+                if (data.Length > 0)
+                {
+                    try
+                    {
+                        spawnInfo.Script = Encoding.UTF8.GetString(data, 0, data.Length);
+                    } catch
+                    {
+                        Console.WriteLine("Error Converting Uploaded Script to string");
+                    }
+                }
+                World.ServerManager.UploadScript(socket, spawnInfo);
+            }
+            catch
+            {
+
+            }
+        }
+
+        public static void ScriptDownload(PlayerSocket socket, Packet packet)
+        {
+            string filename = packet.ReadString(16).Trim();
+            World.ServerManager.DownloadScript(socket, filename);
+        }
+
+        public static void GetEditNPCInfo(PlayerSocket socket, Packet packet)
+        {
+            byte mapID = packet.ReadByte();
+            int mobileID = packet.ReadInt16();
+            World.ServerManager.GetSpawnInfo(socket, mapID, mobileID);
+        }
+
+        public static void CreateMobInfo(PlayerSocket socket, Packet packet)
+        {
+            MobileSpawn ms = new MobileSpawn();
+            ms.MapID = packet.ReadByte();
+            ms.MobileID = packet.ReadInt16();
+            ms.MobType = packet.ReadByte();
+            ms.SpawnDelay = packet.ReadInt16();
+            Rect bounds = new Rect();
+            bounds.X = packet.ReadInt16();
+            bounds.Width = packet.ReadInt16();
+            bounds.Y = packet.ReadInt16();
+            bounds.Height = packet.ReadInt16();
+            ms.Bounds = bounds;
+            int X = packet.ReadInt16();
+            int Y = packet.ReadInt16();
+            byte Z = socket.Mobile.Z;
+            ms.SpawnLocation = new Point3D(X,Y,Z);
+            ms.ScriptName = packet.ReadString(16);
+            World.ServerManager.AddSpawn(socket, ms);
         }
 
         public static void Empty(PlayerSocket socket, Packet packet)

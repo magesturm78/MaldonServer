@@ -245,7 +245,7 @@ namespace MaldonServer.Network
                 return;
 
             byte[] buffer = p.Compile();
-            Console.WriteLine("Sending Packet 0x{0:X2} {1}", p.PacketID, DateTime.Now.ToString("HH:mm:ss"));
+            //Console.WriteLine("Sending Packet 0x{0:X2} {1}", p.PacketID, DateTime.Now.ToString("HH:mm:ss"));
 
             if (buffer != null)
             {

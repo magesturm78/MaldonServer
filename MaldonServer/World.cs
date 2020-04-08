@@ -15,7 +15,7 @@ namespace MaldonServer
 
 		public static IServerManager ServerManager { get; private set; }
 
-		public static IAccountManager AccountManager { get; set; }
+		public static IAccountManager AccountManager { get; private set; }
 
 		public static void Broadcast(Packet p)
         {
@@ -110,6 +110,18 @@ namespace MaldonServer
 			else
 			{
 				Console.WriteLine("Trying to initialize an Additional Server Manager {0}.", serverManager);
+			}
+		}
+
+		public static void SetAccountManager(IAccountManager accountManager)
+		{
+			if (AccountManager == null)
+			{
+				AccountManager = accountManager;
+			}
+			else
+			{
+				Console.WriteLine("Trying to initialize an Additional Account Manager {0}.", accountManager);
 			}
 		}
 	}

@@ -93,6 +93,17 @@ namespace MaldonServer.Network
             return (short)((buffer[index++]) | buffer[index++] << 8);
         }
 
+        internal int ReadInt32()
+        {
+            if ((index + 4) > Size)
+                return 0;
+
+            return (buffer[index++] << 24)
+                 | (buffer[index++] << 16)
+                 | (buffer[index++] << 8)
+                 | buffer[index++];
+        }
+
         internal double ReadDouble()
         {
             if ((index + 4) > Size)
@@ -159,6 +170,15 @@ namespace MaldonServer.Network
             index = end;
 
             return sb.ToString();
+        }
+
+        internal byte[] ReadBytesToEOF()
+        {
+            byte[] data = new byte[Size - index];
+
+            Array.Copy(buffer, index, data, 0, data.Length);
+            index = buffer.Length;
+            return data;
         }
 
         private byte[] DecryptPacket(byte[] data)

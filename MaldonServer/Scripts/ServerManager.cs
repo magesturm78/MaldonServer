@@ -1,6 +1,7 @@
 using System;
 using System.Net.Sockets;
 using MaldonServer;
+using MaldonServer.Network;
 
 namespace MaldonServer.Scripts
 {
@@ -17,5 +18,9 @@ namespace MaldonServer.Scripts
         {
             return true;
         }
+        public void UploadScript(PlayerSocket playerSocket, NPCSpawnInfo spawnInfo) { }
+        public void DownloadScript(PlayerSocket playerSocket, string filename) { }
+        public void GetSpawnInfo(PlayerSocket playerSocket, byte mapID, int mobileID) { }
+        public void AddSpawn(PlayerSocket socket, MobileSpawn ms) { }
     }
 }

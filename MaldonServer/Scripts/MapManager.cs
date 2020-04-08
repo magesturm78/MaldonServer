@@ -22,7 +22,10 @@ namespace MaldonServer.Scripts
 
         public void AddProjectile(ProjectTileType ProjectTileType, Point3D location, byte dir) { }
         public void GetDoorStatus(IMobile mobile, Point3D location) { }
-        public void GetMapSector(IMobile mobile, short loc1) { }
+        public void GetMapSector(IMobile mobile, short sector) { }
+        public void GetMapPatch(IMobile mobile, short sector) { }
+        public void UpdateData(short sector, byte[] data) { }
+        public void RecomputeCheckSum(short sector) { }
     }
 
     public class MapManager
@@ -42,6 +45,15 @@ namespace MaldonServer.Scripts
         static MapManager()
         {
             AddMap(new Map(0));
+            AddMap(new Map(1));
+            AddMap(new Map(2));
+            AddMap(new Map(3));
+            AddMap(new Map(4));
+            AddMap(new Map(5));
+            AddMap(new Map(6));
+            AddMap(new Map(7));
+            AddMap(new Map(8));
+            AddMap(new Map(9));
         }
     }
 }

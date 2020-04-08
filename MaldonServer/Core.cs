@@ -97,26 +97,19 @@ namespace MaldonServer
             {
                 while (!closing)
                 {
-                    Thread.Sleep(1);
-
+                    //Thread.Sleep(1);
+                    
                     //Mobile.ProcessDeltaQueue();
                     //Item.ProcessDeltaQueue();
 
                     //Timer.Slice();
                     serverListener.Slice();
-
-                    //NetState.FlushAll();
-                    //NetState.ProcessDisposedQueue();
-
-                    //if (Slice != null)
-                    //    Slice();
                 }
             }
             catch (Exception e)
             {
                 CurrentDomain_UnhandledException(null, new UnhandledExceptionEventArgs(e, true));
             }
-            //Console.Read();
         }
 
         private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
@@ -184,6 +177,7 @@ namespace MaldonServer
                 crashed = true;
                 closing = true;
             }
+            Console.Read();
         }
     }
 }

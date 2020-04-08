@@ -57,6 +57,7 @@ namespace MaldonServer.Network.ServerPackets
         BadPass         = 0x04,
         CorrectPassword = 0x05,
         CharExist       = 0x08,
+        CharCreated     = 0x09,
         CharInvPw       = 0x21,
         CharInUse       = 0x6A,
     }
@@ -559,7 +560,7 @@ namespace MaldonServer.Network.ServerPackets
     {
         public PlayerSpellListPacket(IMobile m) : base(0x11)
         {
-            int spellCount = m.Spells.Length;
+            int spellCount = m.Spells.Count;
 
             this.EnsureCapacity(spellCount * 2);
 
@@ -975,7 +976,7 @@ namespace MaldonServer.Network.ServerPackets
         {
             Write((byte)41);
             Write((byte)0);
-            Write((byte)m.Mail.Length);
+            Write((byte)m.Mail.Count);
         }
     }
 

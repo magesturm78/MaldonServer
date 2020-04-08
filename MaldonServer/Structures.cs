@@ -154,10 +154,14 @@ namespace MaldonServer
     public struct MobileSpawn
     {
         public byte NameID;
-        public byte SpawnDelay;
+        public int SpawnDelay;
         public Rect Bounds;
         public Point3D SpawnLocation;
         public string ScriptName;
+        public byte MapID;
+        public int MobileID;
+        public byte MobType;
+        public string scriptName;
     }
 
     public struct NPCSpawnInfo
