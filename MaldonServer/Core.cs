@@ -91,7 +91,7 @@ namespace MaldonServer
             int port = Int32.Parse(ConfigurationManager.AppSettings["Port"].ToString());
             serverListener = new Listener(port);
 
-            EventSink.InvokeServerStarted();
+            World.ServerManager.Start();
 
             try
             {
@@ -133,7 +133,7 @@ namespace MaldonServer
             Console.Write("Exiting...");
 
             if (!crashed)
-                EventSink.InvokeServerShutdown();
+                World.ServerManager.Shutdown();
 
             Console.Write("done.");
         }

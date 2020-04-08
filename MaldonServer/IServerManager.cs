@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace MaldonServer
 {
-    public class Map
+    public interface IServerManager
     {
-        public byte MapID { get; set; }
-        public byte Brightness { get; set; }
+        void Start();
+        void Shutdown();
+        bool AllowConnection(Socket s);
     }
 }

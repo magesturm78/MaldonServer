@@ -85,6 +85,14 @@ namespace MaldonServer.Network
             return (ushort)((buffer[index++]) | buffer[index++] << 8);
         }
 
+        internal short ReadInt16()
+        {
+            if ((index + 2) > Size)
+                return 0;
+
+            return (short)((buffer[index++]) | buffer[index++] << 8);
+        }
+
         internal double ReadDouble()
         {
             if ((index + 4) > Size)

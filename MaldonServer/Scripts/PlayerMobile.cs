@@ -28,7 +28,7 @@ namespace MaldonServer.Scripts
         public byte Gender { get; set; }
         public byte AttackRating { get; set; }
         public short HairID { get; set; }
-        public Map Map { get; set; }
+        public IMap Map { get; set; }
         public SpawnLocation SpawnLocation { get
             {
                 return new SpawnLocation(MapManager.GetMap(7), new Point3D(343, 91, 0));
@@ -83,17 +83,39 @@ namespace MaldonServer.Scripts
             }
         }
 
-        public void LocalMessage(MessageType msgType, string message)
-        {
+        public void LocalMessage(MessageType msgType, string message) { }
+        public void SendEverything(){ }
+        public void ProcessText(string text) { }
+        public void ProcessMovement(Point3D location, byte direction) { }
+        public void AddStat(StatType statType) { }
+        public void CastSpell(ISpell spell, Point3D location) { }
+        public void CastSpell(ISpell spell, IMobile target) { }
+        public void UseSkill(ISkill skill, IMobile target) { }
+        public void UseSkill(ISkill skill, int target) { }
+        public void UseSkill(ISkill skill, Point3D location) { }
+        public void SetRun(bool run) { }
+        public void Respawn() { }
+        public void Attack(IMobile mobile, byte dir) { }
+        public void DropItem(byte locationID) { }
+        public void DropItem(byte locationID, int Amount) { }
+        public void UseItem(byte locationID) { }
+        public void MoveItem(byte locationID, byte newLocationID) { }
+        public void UnequipItem(byte locationID) { }
+        public void PickupItem(Point3D location) { }
+        public void BankStoreItem(byte locationID, int amount) { }
+        public void BankWithdrawItem(byte locationID) { }
+        public void InteractNPC(IMobile mob) { }
+        public void InteractDialog(IMobile mob, byte buttonID) { }
+        public void InteractShop(byte LocationID) { }
+        public void ShowGuildList() { }
+        public void ShowGuild(IGuild guild) { }
+        public void ApplyGuild(IGuild guild) { }
+        public void ShowGuildDecrees(IGuild guild) { }
+        public void CreateGuild(string guildName) { }
+        public void BuyGuildHall(IGuild guild, byte guildHallID) { }
+        public void SellGuildHall(IGuild guild) { }
 
-        }
-
-        public void SendEverything()
-        {
-
-        }
-
-        public void MoveToWorld(Point3D newLocation, Map map)
+        public void MoveToWorld(Point3D newLocation, IMap map)
         {
 
         }

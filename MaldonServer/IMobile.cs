@@ -21,7 +21,7 @@ namespace MaldonServer
         byte Gender { get; set; }
         byte AttackRating { get; }
         short HairID { get; set; }
-        Map Map { get; }
+        IMap Map { get; }
         SpawnLocation SpawnLocation { get; set; }
         ContainerItem[] Backpack { get; set; }
         BankBox Bank { get; set; }
@@ -59,5 +59,34 @@ namespace MaldonServer
         void SetLocation(IPoint3D location, bool teleport);
         void LocalMessage(MessageType msgType, string message);
         void SendEverything();
+        void ProcessText(string text);
+        void ProcessMovement(Point3D location, byte direction);
+        void AddStat(StatType statType);
+        void CastSpell(ISpell spell, Point3D location);
+        void CastSpell(ISpell spell, IMobile target);
+        void UseSkill(ISkill skill, IMobile target);
+        void UseSkill(ISkill skill, int target);
+        void UseSkill(ISkill skill, Point3D location);
+        void SetRun(bool run);
+        void Respawn();
+        void Attack(IMobile mobile, byte dir);
+        void DropItem(byte locationID);
+        void DropItem(byte locationID, int Amount);
+        void UseItem(byte locationID);
+        void MoveItem(byte locationID, byte newLocationID);
+        void UnequipItem(byte locationID);
+        void PickupItem(Point3D location);
+        void BankStoreItem(byte locationID, int amount);
+        void BankWithdrawItem(byte locationID);
+        void InteractNPC(IMobile mob);
+        void InteractDialog(IMobile mob, byte buttonID);
+        void InteractShop(byte LocationID);
+        void ShowGuildList();
+        void ShowGuild(IGuild guild);
+        void ApplyGuild(IGuild guild);
+        void ShowGuildDecrees(IGuild guild);
+        void CreateGuild(string guildName);
+        void BuyGuildHall(IGuild guild, byte guildHallID);
+        void SellGuildHall(IGuild guild);
     }
 }

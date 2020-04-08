@@ -98,11 +98,9 @@ namespace MaldonServer.Network
 			try
 			{
 				Socket s = listener.EndAccept(asyncResult);
-                SocketConnectEventArgs e = new SocketConnectEventArgs(s);
-                EventSink.InvokeSocketConnect(e);
-                if (e.AllowConnection)
+                if (World.ServerManager.AllowConnection(s))
                 {
-                    for (byte i = 0; i < MaxConnections; i++)
+                    for (byte i = 1; i < MaxConnections; i++)
                     {
                         if (PlayerSockets[i] == null)
                         {

@@ -7,6 +7,16 @@ using System.Threading.Tasks;
 
 namespace MaldonServer
 {
+    public enum StatType
+    {
+        Str = 65,
+        Def = 66,
+        Con = 67,
+        Int = 68,
+        Mag = 69,
+        Stam = 70
+    }
+
     public interface IMarket
     {
         byte MarketID { get; set; }
@@ -92,10 +102,10 @@ namespace MaldonServer
 
     public struct SpawnLocation
     {
-        public Map Map;
+        public IMap Map;
         public Point3D Location;
 
-        public SpawnLocation(Map map, Point3D location)
+        public SpawnLocation(IMap map, Point3D location)
         {
             Map = map;
             Location = location;
@@ -113,42 +123,24 @@ namespace MaldonServer
         public ContainerItem[] Items;
     }
 
-
-    public struct GuildHall
-    {
-        public int Id;
-        public string Name;
-        public int Price;
-    }
-
     public struct GuildDecree
     {
         public byte DecreeID;
         public byte DecreeType;
-        public Guild Guild;
+        public IGuild Guild;
     }
 
     public struct GuildMember
     {
         public byte MemberID;
-        public byte MemberType;
+        public MemberType MemberType;
         public IMobile Member;
     }
+
     public struct GuildApplicant
     {
         public byte ApplicantID;
         public IMobile Applicant;
-    }
-
-    public struct Guild
-    {
-        public int Id;
-        public string Name;
-        public IMobile Owner;
-        public GuildHall GuildHall;
-        public GuildMember[] Members;
-        public GuildDecree[] Decrees;
-        public GuildApplicant[] Applicants;
     }
 
     public struct Rect

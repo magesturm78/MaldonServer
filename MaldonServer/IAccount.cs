@@ -1,8 +1,5 @@
-﻿using System;
+﻿using MaldonServer.Network;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MaldonServer
 {
@@ -18,11 +15,12 @@ namespace MaldonServer
 
     public interface IAccount
     {
+        PlayerSocket PlayerSocket { get; set; }
         string UserName { get; set; }
         AccessLevel AccessLevel { get; set; }
-        /// <summary>
-        /// List of Characters for this account
-        /// </summary>
-		IMobile[] Mobiles { get; set; }
+		List<IMobile> Characters { get; set; }
+        void CreateCharacter(string name, string name2, string password, byte gender, byte hair);
+        void LoginCharacter(string name, string password);
+        void GetCharacterList();
     }
 }

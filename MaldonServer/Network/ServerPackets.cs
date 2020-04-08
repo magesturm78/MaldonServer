@@ -101,9 +101,9 @@ namespace MaldonServer.Network.ServerPackets
         public CharacterListPacket(IAccount a) : base(0x65)
         {
             int length = 1;
-            for (int i = 0; i < a.Mobiles.Length; ++i)
+            for (int i = 0; i < a.Characters.Count; ++i)
             {
-                IMobile m = a.Mobiles[i];
+                IMobile m = a.Characters[i];
 
                 if (m != null)
                 {
@@ -113,9 +113,9 @@ namespace MaldonServer.Network.ServerPackets
             EnsureCapacity(length);
 
             Write((byte)1);
-            for (int i = 0; i < a.Mobiles.Length; ++i)
+            for (int i = 0; i < a.Characters.Count; ++i)
             {
-                IMobile m = a.Mobiles[i];
+                IMobile m = a.Characters[i];
 
                 if (m != null)
                 {
@@ -984,7 +984,7 @@ namespace MaldonServer.Network.ServerPackets
     #region Map Packets
     public sealed class BrightnessPacket : Packet
     {
-        public BrightnessPacket(Map m) : base(0x09, 1)
+        public BrightnessPacket(IMap m) : base(0x09, 1)
         {
             Write((byte)(0x80 + m.Brightness));
         }
@@ -1093,7 +1093,7 @@ namespace MaldonServer.Network.ServerPackets
 
     public sealed class DoorStatusPacket : Packet
     {
-        public DoorStatusPacket(Map map, Point3D location, DoorStatus status) : base(0x5B, 8)
+        public DoorStatusPacket(IMap map, Point3D location, DoorStatus status) : base(0x5B, 8)
         {
             Write((byte)map.MapID);
             Write((byte)location.Z);
@@ -1124,7 +1124,7 @@ namespace MaldonServer.Network.ServerPackets
     public sealed class SectorNamePacket : Packet
     {
         //TODO: update to correct values???
-        public SectorNamePacket(Map map, int sector) : base(0x60)
+        public SectorNamePacket(IMap map, int sector) : base(0x60)
         {
             string SectorName = String.Format("Map {0} Sector {1}", map.MapID, sector);
             EnsureCapacity(SectorName.Length + 2);
@@ -1826,15 +1826,15 @@ namespace MaldonServer.Network.ServerPackets
     #region Guild Packets
     public sealed class ShowGuildListPacket : Packet
     {
-        public ShowGuildListPacket(Guild[] guilds) : base(0x45, 1)
+        public ShowGuildListPacket(IGuild[] guilds) : base(0x45, 1)
         {
             int size = 1;
-            foreach (Guild guild in guilds)
+            foreach (IGuild guild in guilds)
                 size += 3 + guild.Name.Length;
 
             EnsureCapacity(size);
             Write((byte)0x00);
-            foreach (Guild guild in guilds)
+            foreach (IGuild guild in guilds)
             {
                 Write((short)guild.Id);
                 Write((byte)guild.Name.Length);
@@ -1845,7 +1845,7 @@ namespace MaldonServer.Network.ServerPackets
 
     public sealed class ShowGuildPacket : Packet
     {
-        public ShowGuildPacket(IMobile m, Guild guild) : base(0x45, 1)
+        public ShowGuildPacket(IMobile m, IGuild guild) : base(0x45, 1)
         {
             int size = 10;
             size += guild.Name.Length;
@@ -1919,7 +1919,7 @@ namespace MaldonServer.Network.ServerPackets
 
     public sealed class ShowGuildApplicantsPacket : Packet
     {
-        public ShowGuildApplicantsPacket(Guild guild) : base(0x45)
+        public ShowGuildApplicantsPacket(IGuild guild) : base(0x45)
         {
             //4   new applicants
             //9   purchase guild hall
@@ -1962,21 +1962,21 @@ namespace MaldonServer.Network.ServerPackets
 
     public sealed class ShowGuildHallsPacket : Packet
     {
-        public ShowGuildHallsPacket(GuildHall[] availableghs) : base(0x45)
+        public ShowGuildHallsPacket(IGuildHall[] availableghs) : base(0x45)
         {
             //110 war / peace decrees
 
             int size = 2;
 
             size += availableghs.Length * 5;
-            foreach (GuildHall gh in availableghs)
+            foreach (IGuildHall gh in availableghs)
                 size += gh.Name.Length;
 
             EnsureCapacity(size);
             Write((byte)9);
             Write((byte)availableghs.Length);
 
-            foreach (GuildHall gh in availableghs)
+            foreach (IGuildHall gh in availableghs)
             {
                 Write((byte)gh.Id);//ID
                 Write((byte)gh.Name.Length);//name length
@@ -1990,14 +1990,14 @@ namespace MaldonServer.Network.ServerPackets
 
     public sealed class ShowGuildDecreesPacket : Packet
     {
-        public ShowGuildDecreesPacket(Guild[] availablegs) : base(0x45)
+        public ShowGuildDecreesPacket(IGuild[] availablegs) : base(0x45)
         {
             //110 war / peace decrees
 
             int size = 1;
 
             size += availablegs.Length * 3;
-            foreach (Guild gh in availablegs)
+            foreach (IGuild gh in availablegs)
                 size += gh.Name.Length;
 
             EnsureCapacity(size);
@@ -2005,7 +2005,7 @@ namespace MaldonServer.Network.ServerPackets
             Write((byte)110);
             //m_Stream.Write((byte)(availablegs.Count-1));
 
-            foreach (Guild g in availablegs)
+            foreach (IGuild g in availablegs)
             {
                 Write((UInt16)g.Id);//ID
                 Write((byte)g.Name.Length);//name length
