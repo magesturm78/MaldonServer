@@ -169,6 +169,9 @@ namespace MaldonServer.Network
 
             IMobile m = socket.Mobile;
             ISpell spell = World.GetSpellByCastID(castSpellID);
+            
+            if (spell == null)
+                return;
 
             if (spell.SpellTargetType == SpellTargetType.Location)
             {
@@ -205,9 +208,8 @@ namespace MaldonServer.Network
             byte targetType;
             int targetID;
             if (skill == null)
-            {
-                Console.WriteLine("Cannot find Skill {0}", skillUseID);
-            }
+                return;
+
             switch (skill.TargetType)
             {
                 case SkillTargetType.None://not set up correctly....

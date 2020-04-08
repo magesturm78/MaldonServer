@@ -91,6 +91,7 @@ namespace MaldonServer
             int port = Int32.Parse(ConfigurationManager.AppSettings["Port"].ToString());
             serverListener = new Listener(port);
 
+            DataManager dm = new DataManager();
             World.ServerManager.Start();
 
             try

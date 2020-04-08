@@ -8,13 +8,13 @@ namespace MaldonServer
 {
 	public interface IPoint2D
 	{
-		int X { get; }
-		int Y { get; }
+		int X { get;  }
+		int Y { get;  }
 	}
 
 	public interface IPoint3D : IPoint2D
 	{
-		byte Z { get; }
+		byte Z { get;  }
 	}
 
 	public struct Point3D : IPoint3D

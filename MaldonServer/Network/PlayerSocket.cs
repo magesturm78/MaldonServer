@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 
 namespace MaldonServer.Network
 {
@@ -14,12 +15,13 @@ namespace MaldonServer.Network
         private bool disposing;
         private byte[] recvBuffer;
         private byte[] recvBuffer2;
-
+        private Timer disposeTimer;
         private DateTime nextCheckActivity;
         private string Address;
         private Queue<Packet> packets;
 
         private AsyncCallback onReceive, onSend;
+        private TimerCallback onDisposeTime;
 
         /// <summary>
         /// 0 - 256
@@ -37,8 +39,6 @@ namespace MaldonServer.Network
             recvBuffer = new byte[2048];
             packets = new Queue<Packet>();
 
-            nextCheckActivity = DateTime.Now + TimeSpan.FromSeconds(15);
-
             try { Address = ((IPEndPoint)socket.RemoteEndPoint).Address.ToString(); }
             catch { Address = "";}
 
@@ -49,6 +49,9 @@ namespace MaldonServer.Network
         {
             onReceive = new AsyncCallback(OnReceive);
             onSend = new AsyncCallback(OnSend);
+            onDisposeTime = new TimerCallback(OnDisposeTimer);
+
+            disposeTimer = new Timer(onDisposeTime, this, TimeSpan.FromSeconds(15), TimeSpan.Zero);
 
             Running = true;
 
@@ -84,10 +87,26 @@ namespace MaldonServer.Network
                     else
                     {
                         //Console.WriteLine("Recieved Packet 0x{0:X2} {1}", p.PacketID, DateTime.Now.ToString("HH:mm:ss"));
-                        handler.OnReceive(this, p);
+                        try
+                        {
+                            handler.OnReceive(this, p);
+                        } 
+                        catch (Exception ex)
+                        {
+                            World.ServerManager.PacketHandlerError(Address, ex);
+                            //Console.WriteLine("Error processing Packet 0x{0:X2} {1} {2}", p.PacketID, DateTime.Now.ToString("HH:mm:ss"), ex.Message);
+                        }
                     }
                 }
             }
+        }
+
+        private void OnDisposeTimer(object state)
+        {
+            if (nextCheckActivity > DateTime.Now) return;
+
+            disposeTimer.Dispose();
+            Dispose();
         }
 
         private void OnReceive(IAsyncResult asyncResult)
@@ -119,7 +138,8 @@ namespace MaldonServer.Network
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    //Console.WriteLine("Error reading data from {0} {1} {2}", Address, DateTime.Now.ToString("HH:mm:ss"), ex.Message);
+                    World.ServerManager.InvalidDataFromClient(Address,ex);
                     Dispose();
                 }
                 finally

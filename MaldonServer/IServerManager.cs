@@ -17,5 +17,7 @@ namespace MaldonServer
         void DownloadScript(PlayerSocket playerSocket, string filename);
         void GetSpawnInfo(PlayerSocket playerSocket, byte mapID, int mobileID);
         void AddSpawn(PlayerSocket socket, MobileSpawn ms);
+        void InvalidDataFromClient(string address, Exception ex);
+        void PacketHandlerError(string address, Exception ex);
     }
 }

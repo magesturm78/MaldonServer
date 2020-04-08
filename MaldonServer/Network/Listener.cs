@@ -108,8 +108,8 @@ namespace MaldonServer.Network
                             ConnectedCount++;
                             break;
                         }
-                    }
-                }
+					}
+				}
 			}
 			catch (Exception ex)
 			{
@@ -162,10 +162,11 @@ namespace MaldonServer.Network
 			}
 		}
 
-        internal void RemoveSocket(byte socketID)
+		internal void RemoveSocket(byte socketID)
         {
             PlayerSockets[socketID] = null;
-        }
+			ConnectedCount--;
+		}
 
 		public void Broadcast(Packet p)
 		{
