@@ -57,9 +57,8 @@ namespace MaldonServer
             if (objs.Length == 0)
                 return 0;
 
-            CallPriorityAttribute attr = objs[0] as CallPriorityAttribute;
 
-            if (attr == null)
+            if (!(objs[0] is CallPriorityAttribute attr))
                 return 0;
 
             return attr.Priority;
@@ -70,7 +69,7 @@ namespace MaldonServer
     {
         public static Assembly CompiledAssembly;
 
-        private static ArrayList additionalReferences = new ArrayList();
+        private static readonly ArrayList additionalReferences = new ArrayList();
 
         public static string[] GetReferenceAssemblies()
         {
@@ -113,11 +112,6 @@ namespace MaldonServer
             catch
             {
             }
-        }
-
-        private static CompilerResults CompileCSScripts()
-        {
-            return CompileCSScripts(false);
         }
 
         private static CompilerResults CompileCSScripts(bool debug)
@@ -203,9 +197,8 @@ namespace MaldonServer
             if (additionalReferences.Count > 0)
                 additionalReferences.Clear();
 
-            CompilerResults csResults = null;
+            CompilerResults csResults = CompileCSScripts(debug);
 
-            csResults = CompileCSScripts(debug);
             if (csResults != null && !csResults.Errors.HasErrors)
             {
                 CompiledAssembly = csResults.CompiledAssembly;
@@ -233,7 +226,23 @@ namespace MaldonServer
 
                 invoke.Clear();
 
-                //World.Load();
+                if (World.CreateDataTables)
+                {
+                    for (int i = 0; i < types.Length; ++i)
+                    {
+                        MethodInfo m = types[i].GetMethod("CreateData", BindingFlags.Static | BindingFlags.Public);
+
+                        if (m != null)
+                            invoke.Add(m);
+                    }
+
+                    invoke.Sort(new CallPriorityComparer());
+
+                    for (int i = 0; i < invoke.Count; ++i)
+                        ((MethodInfo)invoke[i]).Invoke(null, null);
+
+                    invoke.Clear();
+                }
 
                 types = CompiledAssembly.GetTypes();
 

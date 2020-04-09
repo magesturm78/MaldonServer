@@ -11,19 +11,19 @@ namespace MaldonServer.Scripts.Accounting
     {
         public PlayerSocket PlayerSocket { get; set; }
         public List<IMobile> Characters { get; set; }
-        public AccessLevel AccessLevel { get; set; }
-        public string UserName { get; set; }
+        public AccessLevel AccessLevel { get; private set; }
+        public string UserName { get; private set; }
         public bool Banned { get; private set; }
+        private int Id;
         private string password;
-        private string email;
 
-        public Account(string username, string password, string email)
+        public Account(int id, string name, string password, AccessLevel accessLevel, bool banned)
         {
-            this.UserName = username;
+            this.Id = id;
+            this.UserName = name;
             this.password = password;
-            this.email = email;
-            Banned = false;
-            Characters = new List<IMobile>();
+            this.AccessLevel = accessLevel;
+            this.Banned = banned;
         }
 
         public bool ValidPassword(string pw)
@@ -42,22 +42,20 @@ namespace MaldonServer.Scripts.Accounting
             {
                 if (character.Name == name)
                 {
-                    if (character.Password != password)
+                    // Check if anyone is using this Character
+                    if (World.IsPlayerOnline(name))
+                    {
+                        Console.WriteLine("Login: {0}: Character is already logged in", PlayerSocket);
+                        PlayerSocket.Send(new CharacterLoginReplyPacket(ALRReason.CharInUse));
+                        return;
+                    }
+
+                    if (!character.ValidPassword(password))
                     {
                         Console.WriteLine("Login: {0}: Invalid Password", PlayerSocket);
                         PlayerSocket.Send(new CharacterLoginReplyPacket(ALRReason.CharInvPw));
                         return;
                     }
-                    // Check if anyone is using this Character
-                    if (character.Map != MapManager.Internal)
-                    {
-                        Console.WriteLine("Login: {0}: Account in use", PlayerSocket);
-                        PlayerSocket.Send(new CharacterLoginReplyPacket(ALRReason.CharInUse));
-                        return;
-                    }
-
-                    //if (character.PlayerSocket != null)
-                    //    character.PlayerSocket.Dispose();
 
                     PlayerSocket.Mobile = character;
                     character.PlayerSocket = PlayerSocket;
@@ -77,6 +75,10 @@ namespace MaldonServer.Scripts.Accounting
 
         public void GetCharacterList()
         {
+            Console.WriteLine("GetCharacterList");
+            //Get characters from database
+            Characters = PlayerManager.GetPlayerList(Id);
+            //send characters to client
             PlayerSocket.Send(new CharacterListPacket(this));
         }
         
@@ -89,48 +91,11 @@ namespace MaldonServer.Scripts.Accounting
                 return;
             }
 
-            PlayerMobile newChar = new PlayerMobile();
-
-            if (newChar == null)
-            {
-                Console.WriteLine("Login: {0}: Character creation failed, account full", PlayerSocket);
-                return;
-            }
-            newChar.Account = this;
-            newChar.Gender = gender;
-            switch (hair)
-            {
-                case 0://black
-                    newChar.HairID = 61;
-                    break;
-                case 1://blond
-                    newChar.HairID = 60;
-                    break;
-                case 2://blue
-                    newChar.HairID = 63;
-                    break;
-                case 3://brown
-                    newChar.HairID = 62;
-                    break;
-                case 4://green
-                    newChar.HairID = 64;
-                    break;
-                case 5://red
-                    newChar.HairID = 59;
-                    break;
-            }
-            newChar.Name = name;
-            newChar.Password = password;
-
-            //newChar.EquipItem(new Candle());
-            //newChar.EquipItem(new Robe());
-
-            Point3D pStart = new Point3D(0, 0, 0);
-            newChar.MoveToWorld(pStart, MapManager.Internal);
+            PlayerManager.CreatePlayer(Id, name, password, gender, hair);
 
             Console.WriteLine("Login: {0}: New character being created (account={1})", PlayerSocket, UserName);
-            Console.WriteLine(" - Character: {0}", newChar.Name);
-            Characters.Add(newChar);
+            Console.WriteLine(" - Character: {0}", name);
+
             PlayerSocket.Send(new CharacterCreateReplyPacket(ALRReason.CharCreated));
         }
 

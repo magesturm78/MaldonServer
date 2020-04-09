@@ -12,49 +12,49 @@ namespace MaldonServer
 
     public interface IMobile : IPoint3D
     {
+        byte Speed { get; }
         byte Direction { get; }
         int NPCId { get;  }
         int NameID { get; }
         Body Body { get; }
-        String Name { get; set; }
+        String Name { get; }
         int Level { get; }
-        double Experience { get; }
-        byte Gender { get; set; }
+        int Experience { get; }
+        byte Gender { get; }
         byte AttackRating { get; }
-        short HairID { get; set; }
+        short HairID { get; }
         IMap Map { get; }
-        SpawnLocation SpawnLocation { get; set; }
-        List<ContainerItem> Backpack { get; set; }
-        BankBox Bank { get; set; }
-        IItem Weapon { get; set; }
-        IItem ChestArmor { get; set; }
-        IItem ShieldArmor { get; set; }
-        IItem HeadArmor { get; set; }
-        IItem Ring1 { get; set; }
-        IItem Ring2 { get; set; }
-        IItem HandArmor { get; set; }
-        IItem Boots { get; set; }
-        List<LearnedSpell> Spells { get; set; }
-        Skill[] Skills { get; set; }
-        byte GuildHallId { get; set; }
+        SpawnLocation SpawnLocation { get;  }
+        List<ContainerItem> Backpack { get;  }
+        BankBox Bank { get;  }
+        IItem Weapon { get;  }
+        IItem ChestArmor { get;  }
+        IItem ShieldArmor { get;  }
+        IItem HeadArmor { get;  }
+        IItem Ring1 { get;  }
+        IItem Ring2 { get;  }
+        IItem HandArmor { get;  }
+        IItem Boots { get;  }
+        List<LearnedSpell> Spells { get;  }
+        Skill[] Skills { get; }
+        byte GuildHallId { get; }
         byte HouseId { get; set; }
         List<MailMessage> Mail { get; }
 
-        int AvailablePoints { get; set; }
+        int AvailablePoints { get;  }
         Stats RawStats { get; }
 
-        int Health { get; set; }
+        int Health { get;  }
         int HealthMax { get;  }
-        int Mana { get; set; }
+        int Mana { get;  }
         int ManaMax { get; }
-        int Energy { get; set; }
+        int Energy { get;  }
         int EnergyMax { get; }
 
         int MeleeDamageMin { get; }
         int MeleeDamageMax { get; }
         bool Player { get; }
         byte ReligionId { get; }
-        IAccount Account { get; set; }
         PlayerSocket PlayerSocket { get; set; }
 
         void SetLocation(IPoint3D location, bool teleport);
@@ -97,5 +97,7 @@ namespace MaldonServer
         void SellItemOnMarket(byte marketTab, int itemLocation, int totalCost);
         void BuyItemOnMarket(byte marketTab, byte itemLocation, byte additionalData);
         void GetMapPatch(byte mapId, short sector);
+        void WarpToLocation(IMap targetMap, Point3D targetLocation);
+
     }
 }

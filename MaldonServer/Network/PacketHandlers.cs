@@ -61,7 +61,7 @@ namespace MaldonServer.Network
             Register(0x5D, true, new OnPacketReceive(PatchMap));//set to false to use external map editor
             Register(0x60, true, new OnPacketReceive(GetSectorName));
 
-            Register(0x64, true, new OnPacketReceive(Unknown64));
+            Register(0x64, false, new OnPacketReceive(Unknown64));//send 64 for different packets 64 0x48 == lost password
 
             Register(0x35, true, new OnPacketReceive(ScriptUpload));
             Register(0x36, true, new OnPacketReceive(ScriptDownload));
@@ -662,9 +662,32 @@ namespace MaldonServer.Network
                         socket.Mobile.BuyItemOnMarket(marketTab, itemID, unk1);
                         break;
                     }
+                case 0x43:
+                    byte unkText = packet.ReadByte();
+                    byte unkText2 = packet.ReadByte();
+                    /*
+                        0x00 0x00 = All
+                        0x01 0x00 = Broadcast
+                        0x02 0x00 = Yell
+                        0x04 0x00 = Peasants
+                        0x08 0x00 = Citizens
+                        0x10 0x00 = Ally
+                        0x20 0x00 = Guild
+                        0x40 0x00 = Whisper
+                        0x80 0x00 = Emote
+                        0x00 0x01 = Tell
+                        0x00 0x02 = Login/Logout
+                        0x00 0x04 = Death
+                     */
+                    Console.WriteLine("Client: {0}: Subscribe Text messages 0x{1:X2} 0x{2:X2}", socket, unkText, unkText2);
+                    break;
                 case 0x44:
                     //state.Mobile.SendPopupMessage("64 Packet 44");
                     socket.Send(new Unk64ReplyPacket(socket.Mobile));
+                    break;
+                case 0x48:
+                    string accountName = packet.ReadNullString();
+                    World.AccountManager.LostPassword(socket, accountName);
                     break;
                 default:
                     Console.WriteLine("Client: {0}: Unhandled packet 0x64 sub 0x{1:X2}", socket, val1);

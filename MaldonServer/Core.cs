@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace MaldonServer
 {
-    class Core
+    public class Core
     {
         private static Assembly assembly;
         //private static Process m_Process;
@@ -63,15 +63,10 @@ namespace MaldonServer
             AppDomain.CurrentDomain.ProcessExit += new EventHandler(CurrentDomain_ProcessExit);
 
             thread = Thread.CurrentThread;
-            //m_Process = Process.GetCurrentProcess();
             assembly = Assembly.GetEntryAssembly();
 
             if (thread != null)
                 thread.Name = "Core Thread";
-
-            //Timer.TimerThread ttObj = new Timer.TimerThread();
-            //timerThread = new Thread(new ThreadStart(ttObj.TimerMain));
-            //timerThread.Name = "Timer Thread";
 
             Version ver = assembly.GetName().Version;
 
@@ -91,7 +86,6 @@ namespace MaldonServer
             int port = Int32.Parse(ConfigurationManager.AppSettings["Port"].ToString());
             serverListener = new Listener(port);
 
-            DataManager dm = new DataManager();
             World.ServerManager.Start();
 
             try

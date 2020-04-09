@@ -13,13 +13,19 @@ namespace MaldonServer
 		private static readonly List<IGuild> guilds = new List<IGuild>();
 		private static readonly List<IGuildHall> guildHalls = new List<IGuildHall>();
 
+		public static bool CreateDataTables { get; set; }
+
 		public static IServerManager ServerManager { get; private set; }
 
 		public static IAccountManager AccountManager { get; private set; }
 
 		public static void Broadcast(Packet p)
         {
-			Listener.Instance.Broadcast(p);
+			foreach (PlayerSocket ps in Listener.Instance.PlayerSockets)
+			{
+				if (ps != null && ps.Mobile != null)
+					ps.Send(p);
+			}
         }
 
 		public static void AddSpell(ISpell spell)
@@ -123,6 +129,16 @@ namespace MaldonServer
 			{
 				Console.WriteLine("Trying to initialize an Additional Account Manager {0}.", accountManager);
 			}
+		}
+
+		public static bool IsPlayerOnline(string name)
+		{
+			foreach (PlayerSocket ps in Listener.Instance.PlayerSockets)
+			{
+				if (ps != null && ps.Mobile != null && ps.Mobile.Name == name)
+					return true;
+			}
+			return false;
 		}
 	}
 }

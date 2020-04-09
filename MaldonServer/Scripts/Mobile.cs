@@ -12,6 +12,7 @@ namespace MaldonServer.Scripts
         public int Y { get; set; }
         public byte Z { get; set; }
 
+        public byte Speed { get; set; }
         public int NPCId { get; set; }
         public byte Direction { get; set; }
         public int NameID { get; set; }
@@ -23,9 +24,8 @@ namespace MaldonServer.Scripts
         public byte ReligionId { get; set; }
         public bool Player { get; set; }
         public String Name { get; set; }
-        public String Password { get; set; }
         public int Level { get; set; }
-        public double Experience { get; set; }
+        public int Experience { get; set; }
         public byte Gender { get; set; }
         public byte AttackRating { get; set; }
         public short HairID { get; set; }
@@ -47,17 +47,35 @@ namespace MaldonServer.Scripts
         public byte HouseId { get; set; }
         public List<MailMessage> Mail { get; set; }
         public int AvailablePoints { get; set; }
-        public Stats RawStats { get; set; }
-        public int Health { get; set; }
-        public int HealthMax { get; set; }
-        public int Mana { get; set; }
-        public int ManaMax { get; set; }
-        public int Energy { get; set; }
-        public int EnergyMax { get; set; }
-        public int MeleeDamageMin { get; set; }
-        public int MeleeDamageMax { get; set; }
+        public Stats RawStats { get; protected set; }
+        public int Health { get; protected set; }
+        public int HealthMax 
+        { 
+            get
+            {
+                return RawStats.Stamina + Level;// + (int)Skills.Tactics.Base;
+            }
+        }
+        public int Mana { get; protected set; }
+        public int ManaMax
+        {
+            get
+            {
+                return RawStats.Intelligence;// + (int)Skills.Magery.Base;
+            }
+        }
+        public int Energy { get; protected set; }
+        public int EnergyMax
+        {
+            get
+            {
+                return 40 + (RawStats.Defence - 20) + Level;
+            }
+        }
 
-        public IAccount Account { get; set; }
+        public int MeleeDamageMin { get; protected set; }
+        public int MeleeDamageMax { get; protected set; }
+
         public PlayerSocket PlayerSocket { get; set; }
 
         public Mobile()
@@ -81,8 +99,38 @@ namespace MaldonServer.Scripts
 
         public void LocalMessage(MessageType msgType, string message) { }
         public void SendEverything(){ }
-        public void ProcessText(string text) { }
-        public void ProcessMovement(Point3D location, byte direction) { }
+
+        public void ProcessText(string text) 
+        { 
+            if (string.Compare(text, "WHO", true) == 0)
+            {
+                PlayerSocket.Send(new WhoIsOnlinePacket());
+            } else
+            {
+                Console.WriteLine("{0} sent text {1}", PlayerSocket, text);
+            }
+        }
+
+        public virtual void ProcessMovement(Point3D location, byte direction) 
+        {
+            //only allow movement of 5 spaces for testing
+            double distance = Utility.GetDistance(new Point3D(X, Y, Z), location);
+            if (distance > 5)
+            {
+                Console.WriteLine("Distance too far {0}", distance);
+                return;
+            }
+
+            if (Map.CanMove(this,location))
+            {
+                X = location.X;
+                Y = location.Y;
+                Z = location.Z;
+                Direction = direction;
+                Map.ProccessMovement(this, location);
+            }
+        }
+
         public void AddStat(StatType statType) { }
         public void CastSpell(ISpell spell, Point3D location) { }
         public void CastSpell(ISpell spell, IMobile target) { }
@@ -118,5 +166,20 @@ namespace MaldonServer.Scripts
         public void SellItemOnMarket(byte marketTab, int itemLocation, int totalCost) { }
         public void BuyItemOnMarket(byte marketTab, byte itemLocation, byte additionalData) { }
         public void GetMapPatch(byte mapId, short sector) { }
+
+        public virtual void WarpToLocation(IMap targetMap, Point3D targetLocation)
+        {
+            Map = targetMap;
+            X = targetLocation.X;
+            Y = targetLocation.Y;
+            Z = targetLocation.Z;
+        }
+
+        public virtual void Spawn()
+        {
+            Health = HealthMax;
+            Mana = ManaMax;
+            Energy = EnergyMax;
+        }
     }
 }

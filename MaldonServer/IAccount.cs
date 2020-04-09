@@ -16,9 +16,9 @@ namespace MaldonServer
     public interface IAccount
     {
         PlayerSocket PlayerSocket { get; set; }
-        string UserName { get; set; }
-        AccessLevel AccessLevel { get; set; }
-		List<IMobile> Characters { get; set; }
+        string UserName { get; }
+        AccessLevel AccessLevel { get; }
+		List<IMobile> Characters { get; }
         void CreateCharacter(string name, string name2, string password, byte gender, byte hair);
         void LoginCharacter(string name, string password);
         void GetCharacterList();

@@ -168,13 +168,5 @@ namespace MaldonServer.Network
 			ConnectedCount--;
 		}
 
-		public void Broadcast(Packet p)
-		{
-			foreach (PlayerSocket ps in PlayerSockets)
-			{
-				if (ps != null && ps.Mobile != null)
-					ps.Send(p);
-			}
-		}
     }
 }

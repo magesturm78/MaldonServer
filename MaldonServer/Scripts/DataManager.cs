@@ -13,7 +13,10 @@ namespace MaldonServer.Scripts
         static DataManager()
         {
             if (!File.Exists(dataBase))
+            {
                 SQLiteConnection.CreateFile(dataBase);
+                World.CreateDataTables = true;
+            }
 
             Connection = new SQLiteConnection(String.Format("Data Source={0};Version=3;", dataBase));
             Connection.Open();

@@ -265,13 +265,13 @@ namespace MaldonServer.Network.ServerPackets
             int size = 0;
             foreach (PlayerSocket ps in Listener.Instance.PlayerSockets)
             {
-                if (ps.Mobile != null)
+                if (ps != null && ps.Mobile != null)
                     size += ps.Mobile.Name.Length + 1;
             }
             EnsureCapacity(size);
             foreach (PlayerSocket ps in Listener.Instance.PlayerSockets)
             {
-                if (ps.Mobile != null)
+                if (ps != null && ps.Mobile != null)
                 {
                     int value = ps.Mobile.Name.Length * 16;
                     if (ps.Account.AccessLevel > AccessLevel.Peasant)
@@ -644,6 +644,65 @@ namespace MaldonServer.Network.ServerPackets
             Write((byte)Z);
         }
     }
+
+    public sealed class PlayerMovementPacket : Packet
+    {
+        public PlayerMovementPacket(IMobile m) : base(0x49)
+        {
+            try
+            {
+                unchecked
+                {
+                    int size = 12;
+                    int religion = 16000;// m.PKPoints + 16000;
+
+                    int highestSkillLevel = 0;// (int)Math.Truncate(m.Skills.Highest.Base);
+                    int unkvalue1 = 1219;
+
+                    if (m.X >= 128) size++;
+                    if (m.Y >= 128) size++;
+                    if (m.Health >= 128) size++;
+                    if (m.Mana >= 128) size++;
+                    if (religion >= 128) size++;
+                    if (unkvalue1 >= 128) size++;
+
+                    EnsureCapacity(size);
+
+                    Write((byte)m.PlayerSocket.SocketID);//playerID
+                    WriteCompressed((short)m.X);//location x
+                    WriteCompressed((short)m.Y);//location x
+
+                    WriteCompressed((short)religion);
+
+                    WriteCompressed((short)m.Health);
+                    WriteCompressed((short)m.Mana);
+
+                    WriteCompressed((short)unkvalue1);//unknown
+                    Write((byte)m.Direction);//0x00
+                    Write((byte)highestSkillLevel);//1 - 255
+                    Write((byte)m.Speed);
+
+                    byte value = (byte)m.Z;
+
+                    if (m.Gender == 1)
+                        value += 0x40;
+
+                    //if (m.HolyAura)
+                    //    value += 0x80;
+
+                    Write((byte)value);
+                    Write((byte)0x04);//0x0A//Guild??
+
+                    Encrypt();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+    }
+
 
     public sealed class PlayerHMEPacket : Packet
     {
@@ -1196,8 +1255,6 @@ namespace MaldonServer.Network.ServerPackets
             //val6
             Write((byte)(dir % 4));
             //max health = 128 
-
-            if (m.Health > m.HealthMax) m.Health = m.HealthMax;
 
             if ((healthPerc < 128) || (m.Z > 0))
             {

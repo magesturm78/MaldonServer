@@ -34,5 +34,14 @@ namespace MaldonServer
 			angle += 160;
 			return angle;
 		}
+
+		public static double GetDistance(Point3D startLoc, Point3D endLoc)
+		{
+			float deltaX = endLoc.X - startLoc.X;
+			float deltaY = endLoc.Y - startLoc.Y;
+			float deltaZ = endLoc.Z - startLoc.Z;
+
+			return Math.Sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+		}
 	}
 }

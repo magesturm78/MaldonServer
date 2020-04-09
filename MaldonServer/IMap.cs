@@ -18,5 +18,8 @@ namespace MaldonServer
         void GetMapSector(IMobile mobile, short sector);
         void UpdateData(short sector, byte[] data);
         void RecomputeCheckSum(short sector);
+        bool CanMove(IMobile mobile, Point3D location);
+        void ProccessMovement(IMobile mobile, Point3D location);
+
     }
 }
