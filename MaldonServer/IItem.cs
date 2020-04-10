@@ -8,11 +8,11 @@ namespace MaldonServer
 {
     public interface IItem
     {
-        int ItemID { get; set; }
-        byte Prefix { get; set; }
-        byte Suffix { get; set; }
-        int Amount { get; set; }
-        int DuraMax { get; set; }
-        int DuraMin { get; set; }
+        int ItemID { get; }
+        byte Prefix { get; }
+        byte Suffix { get; }
+        int Amount { get; }
+        int DuraMax { get; }
+        int DuraMin { get; }
     }
 }

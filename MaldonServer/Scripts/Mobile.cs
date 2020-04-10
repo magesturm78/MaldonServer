@@ -8,6 +8,7 @@ namespace MaldonServer.Scripts
 {
     public class Mobile : IMobile
     {
+        public Point3D Location { get { return new Point3D(X, Y, Z); } }
         public int X { get; set; }
         public int Y { get; set; }
         public byte Z { get; set; }
@@ -32,7 +33,7 @@ namespace MaldonServer.Scripts
         public IMap Map { get; set; }
         public SpawnLocation SpawnLocation { get; set; }
         public List<ContainerItem> Backpack { get; set; }
-        public BankBox Bank { get; set; }
+        public BankBox Bank { get; protected set; }
         public IItem Weapon { get; set; }
         public IItem ChestArmor { get; set; }
         public IItem ShieldArmor { get; set; }
@@ -84,9 +85,54 @@ namespace MaldonServer.Scripts
             Mail = new List<MailMessage>();
             Spells = new List<LearnedSpell>();
             Skills = new Skill[33];
+
+            BankBox bank = new BankBox();
+            bank.Items = new List<ContainerItem>();
+
+            this.Bank = bank;
         }
 
-        public void SetLocation(IPoint3D location, bool teleport)
+        public virtual void LocalMessage(MessageType msgType, string message) { }
+        public virtual void SendEverything(){ }
+        public virtual void AddStat(StatType statType) { }
+        public virtual void CastSpell(ISpell spell, Point3D location) { }
+        public virtual void CastSpell(ISpell spell, IMobile target) { }
+        public virtual void UseSkill(ISkill skill, IMobile target) { }
+        public virtual void UseSkill(ISkill skill, int target) { }
+        public virtual void UseSkill(ISkill skill, Point3D location) { }
+        public virtual void Respawn() { }
+        public virtual void Attack(IMobile mobile, byte dir) { }
+        public virtual void DropItem(byte locationID) { }
+        public virtual void DropItem(byte locationID, int Amount) { }
+        public virtual void UseItem(byte locationID) { }
+        public virtual void MoveItem(byte locationID, byte newLocationID) { }
+        public virtual void UnequipItem(byte locationID) { }
+        public virtual void PickupItem(Point3D location) { }
+        public virtual void BankStoreItem(byte locationID, int amount) { }
+        public virtual void BankWithdrawItem(byte locationID) { }
+        public virtual void InteractNPC(IMobile mob) { }
+        public virtual void InteractDialog(IMobile mob, byte buttonID) { }
+        public virtual void InteractShop(byte LocationID) { }
+        public virtual void ShowGuildList() { }
+        public virtual void ShowGuild(IGuild guild) { }
+        public virtual void ApplyGuild(IGuild guild) { }
+        public virtual void ShowGuildDecrees(IGuild guild) { }
+        public virtual void CreateGuild(string guildName) { }
+        public virtual void BuyGuildHall(IGuild guild, byte guildHallID) { }
+        public virtual void SellGuildHall(IGuild guild) { }
+        public virtual void SendMailList() { }
+        public virtual void ShowMailMessage(int mailMessageID) { }
+        public virtual void GetItemFromMail(int mailMessageID, byte itemNum) { }
+        public virtual void SendMail(string toName, string subject, string content, List<int> mailItems) { }
+        public virtual void ShowMarket(byte marketTab) { }
+        public virtual void SellItemOnMarket(byte marketTab, int itemLocation, int totalCost) { }
+        public virtual void BuyItemOnMarket(byte marketTab, byte itemLocation, byte additionalData) { }
+        public virtual void GetMapPatch(byte mapId, short sector) { }
+        public virtual void UnsubscribeToMessage(MessageSubscriptionType messageType) { }
+        public virtual void SendMessage(MessageSubscriptionType messageType, Packet p) { }
+        public virtual void OpenBank() { }
+
+        public virtual void SetLocation(IPoint3D location, bool teleport)
         {
             if (teleport)
             {
@@ -97,21 +143,19 @@ namespace MaldonServer.Scripts
             }
         }
 
-        public void LocalMessage(MessageType msgType, string message) { }
-        public void SendEverything(){ }
-
-        public void ProcessText(string text) 
-        { 
+        public virtual void ProcessText(string text)
+        {
             if (string.Compare(text, "WHO", true) == 0)
             {
                 PlayerSocket.Send(new WhoIsOnlinePacket());
-            } else
+            }
+            else
             {
                 Console.WriteLine("{0} sent text {1}", PlayerSocket, text);
             }
         }
 
-        public virtual void ProcessMovement(Point3D location, byte direction) 
+        public virtual void ProcessMovement(Point3D location, byte direction)
         {
             //only allow movement of 5 spaces for testing
             double distance = Utility.GetDistance(new Point3D(X, Y, Z), location);
@@ -121,51 +165,23 @@ namespace MaldonServer.Scripts
                 return;
             }
 
-            if (Map.CanMove(this,location))
+            Direction = direction;
+
+            if (location.X == X && location.Y == Y && location.Z == Z ) return;  //do not need to re run map code
+
+            if (Map.CanMove(this, location))
             {
                 X = location.X;
                 Y = location.Y;
                 Z = location.Z;
-                Direction = direction;
                 Map.ProccessMovement(this, location);
             }
         }
 
-        public void AddStat(StatType statType) { }
-        public void CastSpell(ISpell spell, Point3D location) { }
-        public void CastSpell(ISpell spell, IMobile target) { }
-        public void UseSkill(ISkill skill, IMobile target) { }
-        public void UseSkill(ISkill skill, int target) { }
-        public void UseSkill(ISkill skill, Point3D location) { }
-        public void SetRun(bool run) { }
-        public void Respawn() { }
-        public void Attack(IMobile mobile, byte dir) { }
-        public void DropItem(byte locationID) { }
-        public void DropItem(byte locationID, int Amount) { }
-        public void UseItem(byte locationID) { }
-        public void MoveItem(byte locationID, byte newLocationID) { }
-        public void UnequipItem(byte locationID) { }
-        public void PickupItem(Point3D location) { }
-        public void BankStoreItem(byte locationID, int amount) { }
-        public void BankWithdrawItem(byte locationID) { }
-        public void InteractNPC(IMobile mob) { }
-        public void InteractDialog(IMobile mob, byte buttonID) { }
-        public void InteractShop(byte LocationID) { }
-        public void ShowGuildList() { }
-        public void ShowGuild(IGuild guild) { }
-        public void ApplyGuild(IGuild guild) { }
-        public void ShowGuildDecrees(IGuild guild) { }
-        public void CreateGuild(string guildName) { }
-        public void BuyGuildHall(IGuild guild, byte guildHallID) { }
-        public void SellGuildHall(IGuild guild) { }
-        public void SendMailList() { }
-        public void ShowMailMessage(int mailMessageID) { }
-        public void GetItemFromMail(int mailMessageID, byte itemNum) { }
-        public void SendMail(string toName, string subject, string content, List<int> mailItems) { }
-        public void ShowMarket(byte marketTab) { }
-        public void SellItemOnMarket(byte marketTab, int itemLocation, int totalCost) { }
-        public void BuyItemOnMarket(byte marketTab, byte itemLocation, byte additionalData) { }
-        public void GetMapPatch(byte mapId, short sector) { }
+        public virtual void SetRun(bool run)
+        {
+            Speed = (byte)(run ? 20 : 10);
+        }
 
         public virtual void WarpToLocation(IMap targetMap, Point3D targetLocation)
         {

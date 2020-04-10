@@ -172,7 +172,6 @@ namespace MaldonServer
                 crashed = true;
                 closing = true;
             }
-            Console.Read();
         }
     }
 }

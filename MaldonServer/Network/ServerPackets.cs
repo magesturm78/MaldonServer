@@ -132,17 +132,6 @@ namespace MaldonServer.Network.ServerPackets
 
     //InGame Packets
 
-    public enum MessageType
-    {
-        Misc = 0x00,
-        System = 0x01,
-        Yell = 0x02,
-        Broadcast = 0x03,
-        Guild = 0x04,
-        Tell = 0x05,
-        Whisper = 0x06
-    }
-
     public sealed class HardCodedMessagePacket : Packet
     {
         //TODO: update to correct values???
@@ -702,7 +691,6 @@ namespace MaldonServer.Network.ServerPackets
             }
         }
     }
-
 
     public sealed class PlayerHMEPacket : Packet
     {

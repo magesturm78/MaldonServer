@@ -589,7 +589,6 @@ namespace MaldonServer.Network
 
             IMap map = World.GetMapByID(MapID);
             map.UpdateData(sector, data);
-            map.RecomputeCheckSum(sector);
         }
 
         public static void Unknown64(PlayerSocket socket, Packet packet)
@@ -663,23 +662,23 @@ namespace MaldonServer.Network
                         break;
                     }
                 case 0x43:
-                    byte unkText = packet.ReadByte();
-                    byte unkText2 = packet.ReadByte();
-                    /*
-                        0x00 0x00 = All
-                        0x01 0x00 = Broadcast
-                        0x02 0x00 = Yell
-                        0x04 0x00 = Peasants
-                        0x08 0x00 = Citizens
-                        0x10 0x00 = Ally
-                        0x20 0x00 = Guild
-                        0x40 0x00 = Whisper
-                        0x80 0x00 = Emote
-                        0x00 0x01 = Tell
-                        0x00 0x02 = Login/Logout
-                        0x00 0x04 = Death
-                     */
-                    Console.WriteLine("Client: {0}: Subscribe Text messages 0x{1:X2} 0x{2:X2}", socket, unkText, unkText2);
+                    int messageTypes = packet.ReadInt16();
+                    if (messageTypes == 0)
+                    {
+                        socket.Mobile.UnsubscribeToMessage(MessageSubscriptionType.None);
+                    } 
+                    else
+                    {
+                        foreach (MessageSubscriptionType mst in (MessageSubscriptionType[])Enum.GetValues(typeof(MessageSubscriptionType)))
+                        {
+                            int imst = (int)mst;
+                            if ((messageTypes & imst) == imst)
+                            {
+                                socket.Mobile.UnsubscribeToMessage(mst);
+                                Console.WriteLine("Client: {0}: UnSubscribe Text messages {1}", socket, mst);
+                            }
+                        }
+                    }
                     break;
                 case 0x44:
                     //state.Mobile.SendPopupMessage("64 Packet 44");

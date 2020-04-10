@@ -43,5 +43,57 @@ namespace MaldonServer
 
 			return Math.Sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
 		}
-	}
+
+        public static Point3D GetLocation(Point3D location, Direction d)
+        {
+            int x = location.X;
+            int y = location.Y;
+
+            switch (d)
+            {
+                case Direction.North:
+                    x--;
+                    break;
+                case Direction.South:
+                    x++;
+                    break;
+                case Direction.East:
+                    y--;
+                    break;
+                case Direction.West:
+                    y++;
+                    break;
+                case Direction.NorthEast:
+                    x--;
+                    y--;
+                    break;
+                case Direction.NorthWest:
+                    x--;
+                    y++;
+                    break;
+                case Direction.SouthEast:
+                    x++;
+                    y--;
+                    break;
+                case Direction.SouthWest:
+                    x++;
+                    y++;
+                    break;
+            }
+            return new Point3D(x, y, location.Z);
+        }
+
+        public static Array ResizeArray(Array arr, int[] newSizes)
+        {
+            if (newSizes.Length != arr.Rank)
+                throw new ArgumentException("arr must have the same number of dimensions " +
+                                            "as there are elements in newSizes", "newSizes");
+
+            var temp = Array.CreateInstance(arr.GetType().GetElementType(), newSizes);
+            int length = arr.Length <= temp.Length ? arr.Length : temp.Length;
+            Array.ConstrainedCopy(arr, 0, temp, 0, length);
+            return temp;
+        }
+
+    }
 }

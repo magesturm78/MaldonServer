@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MaldonServer
 {
-    public enum StatType
+    public enum StatType : byte
     {
         Str = 65,
         Def = 66,
@@ -15,6 +15,45 @@ namespace MaldonServer
         Int = 68,
         Mag = 69,
         Stam = 70
+    }
+
+    public enum MessageType : byte
+    {
+        Misc = 0x00,
+        System = 0x01,
+        Yell = 0x02,
+        Broadcast = 0x03,
+        Guild = 0x04,
+        Tell = 0x05,
+        Whisper = 0x06
+    }
+
+    public enum MessageSubscriptionType
+    {
+        None = 0,
+        Broadcast = 1,
+        Yell = 2,
+        Peasants = 4,
+        Citizens = 8,
+        Ally = 16,
+        Guild = 32,
+        Whisper = 64,
+        Emote = 128,
+        Tell = 256,
+        Login_Logout = 512,
+        Death = 1024
+    }
+
+    public enum Direction : byte
+    {
+		North = 0,
+        South = 1,
+        East = 2,
+        West = 3,
+        NorthEast = 4,
+		SouthEast = 7,
+		SouthWest = 5,
+        NorthWest = 6
     }
 
     public interface IMarket
@@ -46,7 +85,7 @@ namespace MaldonServer
     public struct BankBox
     {
         public int Gold;
-        public ContainerItem[] Items;
+        public List<ContainerItem> Items;
     }
 
     public struct Body

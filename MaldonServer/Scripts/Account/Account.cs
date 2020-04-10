@@ -115,7 +115,7 @@ namespace MaldonServer.Scripts.Accounting
             PlayerSocket.Send(new NumberPlayersPacket());
 
             PlayerSocket.Send(new PlayerNamePacket(m));
-            World.Broadcast(new HardCodedMessagePacket(12, m.Name));//Player xxx joined broadcast????
+            World.Broadcast(MessageSubscriptionType.Login_Logout, new HardCodedMessagePacket(12, m.Name));//Player xxx joined broadcast????
 
             PlayerSocket.Send(new PlayerIncomingPacket(m));
 

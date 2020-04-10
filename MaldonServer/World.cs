@@ -19,14 +19,23 @@ namespace MaldonServer
 
 		public static IAccountManager AccountManager { get; private set; }
 
-		public static void Broadcast(Packet p)
+		public static void Broadcast(MessageSubscriptionType mst, Packet p)
         {
+			foreach (PlayerSocket ps in Listener.Instance.PlayerSockets)
+			{
+				if (ps != null && ps.Mobile != null)
+					ps.Mobile.SendMessage(mst, p);
+			}
+        }
+
+		public static void Broadcast(Packet p)
+		{
 			foreach (PlayerSocket ps in Listener.Instance.PlayerSockets)
 			{
 				if (ps != null && ps.Mobile != null)
 					ps.Send(p);
 			}
-        }
+		}
 
 		public static void AddSpell(ISpell spell)
 		{

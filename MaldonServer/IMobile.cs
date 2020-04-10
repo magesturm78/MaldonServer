@@ -12,6 +12,7 @@ namespace MaldonServer
 
     public interface IMobile : IPoint3D
     {
+        Point3D Location { get; }
         byte Speed { get; }
         byte Direction { get; }
         int NPCId { get;  }
@@ -98,6 +99,8 @@ namespace MaldonServer
         void BuyItemOnMarket(byte marketTab, byte itemLocation, byte additionalData);
         void GetMapPatch(byte mapId, short sector);
         void WarpToLocation(IMap targetMap, Point3D targetLocation);
-
+        void UnsubscribeToMessage(MessageSubscriptionType messageType);
+        void SendMessage(MessageSubscriptionType messageType, Packet p);
+        void OpenBank();
     }
 }

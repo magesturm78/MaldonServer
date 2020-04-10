@@ -15,9 +15,9 @@ namespace MaldonServer
         IMobile GetMobile(int mobileID);
         void AddProjectile(ProjectTileType ProjectTileType, Point3D location, byte dir);
         void GetDoorStatus(IMobile mobile, Point3D location);
+        void OpenDoor(IMobile mobile, Point3D location);
         void GetMapSector(IMobile mobile, short sector);
         void UpdateData(short sector, byte[] data);
-        void RecomputeCheckSum(short sector);
         bool CanMove(IMobile mobile, Point3D location);
         void ProccessMovement(IMobile mobile, Point3D location);
 

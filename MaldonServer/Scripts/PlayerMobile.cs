@@ -67,15 +67,15 @@ namespace MaldonServer.Scripts
             PlayerSocket.Send(new PlayerTeleportPacket(Map.MapID, X, Y, Z));
         }
 
-        private void ResetStats()
+        public override void SendMessage(MessageSubscriptionType messageType, Packet p) 
         {
-            Stats stats = this.RawStats;
-            stats.Strength = 20;
-            stats.Defence = 20;
-            stats.Consititution = 20;
-            stats.Intelligence = 20;
-            stats.Magic = 20;
-            stats.Stamina = 20;
+            base.SendMessage(messageType, p);
+            PlayerSocket.Send(p);
+        }
+
+        public override void OpenBank() 
+        {
+            PlayerSocket.Send(new PlayerBankPacket(this));
         }
 
     }

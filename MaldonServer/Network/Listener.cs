@@ -13,6 +13,8 @@ namespace MaldonServer.Network
 
 		public const byte MaxConnections = byte.MaxValue;
 
+		private bool dirty = false;
+
 		public int Port { get; private set; }
 		public static int ConnectedCount { get; private set; }
 
@@ -126,6 +128,7 @@ namespace MaldonServer.Network
 			lock (socketsQueue)
 			{
 				socketsQueue.Enqueue(socketID);
+				dirty = true;
 			}
 		}
 
@@ -150,6 +153,8 @@ namespace MaldonServer.Network
 
 		public void Slice()
 		{
+			if (!dirty) return;
+
 			lock (socketsQueue)
 			{
 				while (socketsQueue.Count > 0)
@@ -159,6 +164,7 @@ namespace MaldonServer.Network
 					if (PlayerSockets[i].Running)
 						PlayerSockets[i].Continue();
 				}
+				dirty = false;
 			}
 		}
 
